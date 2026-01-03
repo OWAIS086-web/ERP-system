@@ -1,0 +1,516 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add New Employee{% endblock %}
+{% block page_subtitle %}Create a comprehensive employee record{% endblock %}
+
+{% block page_icon %}
+<i class="fas fa-user-plus text-primary"></i>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('hr.employees') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to Employees
+</a>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('hr.employees') }}">Employees</a>
+</li>
+<li class="breadcrumb-item active">Add New Employee</li>
+{% endblock %}
+
+{% block page_content %}
+<form method="POST" action="{{ url_for('hr.add_employee') }}" id="employeeForm" class="needs-validation" novalidate>
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+                <!-- Personal Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="first_name" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="middle_name" class="form-label">Middle Name</label>
+                                <input type="text" class="form-control" id="middle_name" name="middle_name">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="last_name" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer_not_to_say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="marital_status" class="form-label">Marital Status</label>
+                                <select class="form-select" id="marital_status" name="marital_status">
+                                    <option value="">Select...</option>
+                                    <option value="single">Single</option>
+                                    <option value="married">Married</option>
+                                    <option value="divorced">Divorced</option>
+                                    <option value="widowed">Widowed</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="nationality" class="form-label">Nationality</label>
+                                <input type="text" class="form-control" id="nationality" name="nationality">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="national_id" class="form-label">National ID</label>
+                                <input type="text" class="form-control" id="national_id" name="national_id">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="personal_email" class="form-label">Personal Email</label>
+                                <input type="email" class="form-control" id="personal_email" name="personal_email">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="mobile" class="form-label">Mobile</label>
+                                <input type="tel" class="form-control" id="mobile" name="mobile">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="state" class="form-label">State/Province</label>
+                                <input type="text" class="form-control" id="state" name="state">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="postal_code" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="country" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="country" name="country">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Emergency Contact</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="emergency_contact_name" class="form-label">Contact Name</label>
+                                <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="emergency_contact_phone" class="form-label">Contact Phone</label>
+                                <input type="tel" class="form-control" id="emergency_contact_phone" name="emergency_contact_phone">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="emergency_contact_relationship" class="form-label">Relationship</label>
+                                <input type="text" class="form-control" id="emergency_contact_relationship" name="emergency_contact_relationship" 
+                                       placeholder="e.g., Spouse, Parent, Sibling">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Employment Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="hire_date" class="form-label">Hire Date *</label>
+                                <input type="date" class="form-control" id="hire_date" name="hire_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="employee_id" class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" id="employee_id" name="employee_id" 
+                                       placeholder="Auto-generated if empty">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="department_id" class="form-label">Department *</label>
+                                <select class="form-select" id="department_id" name="department_id" required>
+                                    <option value="">Select Department...</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.id }}" 
+                                                {% if request.args.get('department_id') == dept.id|string %}selected{% endif %}>
+                                            {{ dept.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="position_id" class="form-label">Position</label>
+                                <select class="form-select" id="position_id" name="position_id">
+                                    <option value="">Select Position...</option>
+                                    {% for position in positions %}
+                                        <option value="{{ position.id }}" data-department="{{ position.department_id }}">
+                                            {{ position.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="manager_id" class="form-label">Manager</label>
+                                <select class="form-select" id="manager_id" name="manager_id">
+                                    <option value="">Select Manager...</option>
+                                    {% for emp in managers %}
+                                        <option value="{{ emp.id }}">{{ emp.full_name }} ({{ emp.employee_id }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="work_location" class="form-label">Work Location</label>
+                                <input type="text" class="form-control" id="work_location" name="work_location" 
+                                       placeholder="e.g., Main Office, Remote, Branch Office">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="employment_type" class="form-label">Employment Type *</label>
+                                <select class="form-select" id="employment_type" name="employment_type" required>
+                                    <option value="full_time" selected>Full Time</option>
+                                    <option value="part_time">Part Time</option>
+                                    <option value="contract">Contract</option>
+                                    <option value="intern">Intern</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="employment_status" class="form-label">Employment Status</label>
+                                <select class="form-select" id="employment_status" name="employment_status">
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="on_leave">On Leave</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="pay_frequency" class="form-label">Pay Frequency</label>
+                                <select class="form-select" id="pay_frequency" name="pay_frequency">
+                                    <option value="monthly" selected>Monthly</option>
+                                    <option value="bi_weekly">Bi-Weekly</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="annual">Annual</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compensation -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Compensation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="base_salary" class="form-label">Base Salary</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="base_salary" name="base_salary" 
+                                           step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="hourly_rate" class="form-label">Hourly Rate</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="hourly_rate" name="hourly_rate" 
+                                           step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Enter either base salary (for salaried employees) or hourly rate (for hourly employees)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4">
+                <!-- User Account -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">User Account</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Work Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <small class="text-muted">Minimum 8 characters</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password *</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" name="role">
+                                <option value="employee" selected>Employee</option>
+                                <option value="manager">Manager</option>
+                                <option value="hr">HR</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Entitlements -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Leave Entitlements</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="vacation_days_total" class="form-label">Vacation Days</label>
+                                <input type="number" class="form-control" id="vacation_days_total" name="vacation_days_total" 
+                                       min="0" value="20">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label for="sick_days_total" class="form-label">Sick Days</label>
+                                <input type="number" class="form-control" id="sick_days_total" name="sick_days_total" 
+                                       min="0" value="10">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="personal_days_total" class="form-label">Personal Days</label>
+                                <input type="number" class="form-control" id="personal_days_total" name="personal_days_total" 
+                                       min="0" value="5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidelines -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Guidelines</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Tips</h6>
+                            <ul class="mb-0 small">
+                                <li>Employee ID will be auto-generated if not provided</li>
+                                <li>Work email will be used for system notifications</li>
+                                <li>Manager assignment helps with approval workflows</li>
+                                <li>Leave entitlements can be adjusted later</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Required Fields</h6>
+                            <p class="mb-0 small">
+                                First name, last name, hire date, department, username, work email, and password are required.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('hr.employees') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-primary" onclick="saveDraft()">
+                                <i class="fas fa-save"></i> Save as Draft
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-user-plus"></i> Create Employee
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Auto-generate username from name
+document.getElementById('first_name').addEventListener('input', generateUsername);
+document.getElementById('last_name').addEventListener('input', generateUsername);
+
+function generateUsername() {
+    const firstName = document.getElementById('first_name').value.toLowerCase();
+    const lastName = document.getElementById('last_name').value.toLowerCase();
+    const usernameField = document.getElementById('username');
+    
+    if (firstName && lastName && !usernameField.value) {
+        usernameField.value = firstName + '.' + lastName;
+    }
+}
+
+// Auto-generate work email from username
+document.getElementById('username').addEventListener('input', function() {
+    const username = this.value;
+    const emailField = document.getElementById('email');
+    
+    if (username && !emailField.value) {
+        emailField.value = username + '@company.com';
+    }
+});
+
+// Filter positions by department
+document.getElementById('department_id').addEventListener('change', function() {
+    const selectedDepartment = this.value;
+    const positionSelect = document.getElementById('position_id');
+    const options = positionSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block';
+            return;
+        }
+        
+        const optionDepartment = option.getAttribute('data-department');
+        if (!selectedDepartment || optionDepartment === selectedDepartment) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+    
+    // Reset position selection if current selection is not valid for new department
+    const currentPosition = positionSelect.value;
+    if (currentPosition) {
+        const currentOption = positionSelect.querySelector(`option[value="${currentPosition}"]`);
+        if (currentOption && currentOption.style.display === 'none') {
+            positionSelect.value = '';
+        }
+    }
+});
+
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Form validation
+document.getElementById('employeeForm').addEventListener('submit', function(e) {
+    const firstName = document.getElementById('first_name').value.trim();
+    const lastName = document.getElementById('last_name').value.trim();
+    const hireDate = document.getElementById('hire_date').value;
+    const department = document.getElementById('department_id').value;
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (!firstName || !lastName) {
+        e.preventDefault();
+        alert('Please enter first and last name');
+        return;
+    }
+    
+    if (!hireDate) {
+        e.preventDefault();
+        alert('Please select a hire date');
+        return;
+    }
+    
+    if (!department) {
+        e.preventDefault();
+        alert('Please select a department');
+        return;
+    }
+    
+    if (!username || !email) {
+        e.preventDefault();
+        alert('Please enter username and work email');
+        return;
+    }
+    
+    if (password.length < 8) {
+        e.preventDefault();
+        alert('Password must be at least 8 characters long');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match');
+        return;
+    }
+});
+
+function saveDraft() {
+    // Implementation for saving as draft
+    alert('Draft save functionality will be implemented');
+}
+
+// Set default hire date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('hire_date').value = today;
+});
+</script>
+{% endblock %}
+              

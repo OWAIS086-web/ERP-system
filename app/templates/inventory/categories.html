@@ -1,0 +1,172 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Categories{% endblock %}
+{% block page_subtitle %}Manage product categories{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Inventory</span>
+<span class="breadcrumb-item active">Categories</span>
+{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <i class="fas fa-plus"></i> Add Category
+</button>
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title">Category List</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Products</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon me-3">
+                                            <i class="fas fa-laptop"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Electronics</div>
+                                            <small class="text-muted">Electronic devices and accessories</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>89 products</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-outline-success" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon me-3">
+                                            <i class="fas fa-tshirt"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Clothing</div>
+                                            <small class="text-muted">Apparel and fashion items</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>156 products</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-outline-success" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title">Category Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Categories</span>
+                        <span class="fw-bold">8</span>
+                    </div>
+                </div>
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Active Categories</span>
+                        <span class="fw-bold text-success">7</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="d-flex justify-content-between">
+                        <span>Inactive Categories</span>
+                        <span class="fw-bold text-warning">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="categoryName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryIcon" class="form-label">Icon</label>
+                        <select class="form-select" id="categoryIcon">
+                            <option value="fas fa-laptop">Electronics</option>
+                            <option value="fas fa-tshirt">Clothing</option>
+                            <option value="fas fa-book">Books</option>
+                            <option value="fas fa-home">Home & Garden</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.category-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+</style>
+{% endblock %}

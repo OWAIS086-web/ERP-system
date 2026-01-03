@@ -1,0 +1,195 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Customers{% endblock %}
+{% block page_subtitle %}Manage your customer database{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Sales</span>
+<span class="breadcrumb-item active">Customers</span>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('sales.add_customer') }}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Add Customer
+</a>
+<button class="btn btn-outline-primary">
+    <i class="fas fa-download"></i> Export
+</button>
+{% endblock %}
+
+{% block page_content %}
+<!-- Search and Filter -->
+<div class="glass-card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <input type="text" class="form-control" placeholder="Search customers...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex gap-2">
+                    <select class="form-select">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+                    <select class="form-select">
+                        <option>All Companies</option>
+                        <option>Enterprise</option>
+                        <option>SMB</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customers Table -->
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Customer List</h5>
+        <div class="card-actions">
+            <span class="text-muted">Showing 1-10 of 150 customers</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Company</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Orders</th>
+                        <th>Total Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">John Smith</div>
+                                    <small class="text-muted">Customer since 2023</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Acme Corporation</td>
+                        <td>john.smith@acme.com</td>
+                        <td>+1 (555) 123-4567</td>
+                        <td><span class="status-badge active">Active</span></td>
+                        <td>15</td>
+                        <td class="currency">25000.00</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Sarah Johnson</div>
+                                    <small class="text-muted">Customer since 2022</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Tech Solutions Inc</td>
+                        <td>sarah@techsolutions.com</td>
+                        <td>+1 (555) 987-6543</td>
+                        <td><span class="status-badge active">Active</span></td>
+                        <td>28</td>
+                        <td class="currency">45000.00</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Michael Brown</div>
+                                    <small class="text-muted">Customer since 2024</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Global Enterprises</td>
+                        <td>m.brown@global.com</td>
+                        <td>+1 (555) 456-7890</td>
+                        <td><span class="status-badge pending">Pending</span></td>
+                        <td>3</td>
+                        <td class="currency">8500.00</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link">1</span>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block body_class %}app-layout{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+    
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Navigation -->
+        {% include 'components/navbar.html' %}
+        
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show flash-message" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'warning' else 'info-circle' }} me-2"></i>
+                                    <div class="flex-grow-1">{{ message }}</div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Breadcrumb Navigation -->
+            {% block breadcrumb %}
+                {% if request.endpoint != 'main.dashboard' %}
+                    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url_for('main.dashboard') }}">
+                                    <i class="fas fa-home"></i> Dashboard
+                                </a>
+                            </li>
+                            {% block breadcrumb_items %}{% endblock %}
+                        </ol>
+                    </nav>
+                {% endif %}
+            {% endblock %}
+            
+            <!-- Page Header -->
+            {% block page_header %}
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div class="page-title-wrapper">
+                            <div class="page-title-content">
+                                {% block page_icon %}{% endblock %}
+                                <div class="page-title-text">
+                                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                                    {% if self.page_subtitle() %}
+                                        <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="page-actions">
+                                {% block page_actions %}{% endblock %}
+                            </div>
+                        </div>
+                        
+                        <!-- Page Stats/Metrics -->
+                        {% block page_stats %}{% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+            
+            <!-- Main Content Area -->
+            <main class="page-content" role="main">
+                {% block page_content %}
+                    <!-- Default content block for backward compatibility -->
+                    {% block content_body %}{% endblock %}
+                {% endblock %}
+            </main>
+        </div>
+        
+        <!-- Footer -->
+        {% block footer %}
+           
+        {% endblock %}
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+</div>
+
+<!-- Global Search Modal -->
+<div class="modal fade" id="globalSearchModal" tabindex="-1" aria-labelledby="globalSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="globalSearchModalLabel">
+                    <i class="fas fa-search me-2"></i>Global Search
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="search-input-wrapper">
+                    <input type="text" class="form-control form-control-lg" id="globalSearchInput" 
+                           placeholder="Search customers, orders, products, employees..." autocomplete="off">
+                    <div class="search-suggestions" id="searchSuggestions">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+                <div class="search-shortcuts mt-3">
+                    <small class="text-muted">
+                        <kbd>↑</kbd> <kbd>↓</kbd> to navigate • <kbd>Enter</kbd> to select • <kbd>Esc</kbd> to close
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Floating Button -->
+<div class="quick-actions-fab" id="quickActionsFab">
+    <button type="button" class="btn btn-primary btn-fab" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-plus"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><h6 class="dropdown-header">Quick Actions</h6></li>
+        <li><a class="dropdown-item" href="{{ url_for('sales.add_customer') }}">
+            <i class="fas fa-user-plus me-2"></i>New Customer
+        </a></li>
+        <li><a class="dropdown-item" href="{{ url_for('sales.add_order') }}">
+            <i class="fas fa-shopping-cart me-2"></i>New Order
+        </a></li>
+        <li><a class="dropdown-item" href="{{ url_for('inventory.add_product') }}">
+            <i class="fas fa-box me-2"></i>New Product
+        </a></li>
+        <li><a class="dropdown-item" href="{{ url_for('hr.add_employee') }}">
+            <i class="fas fa-user-tie me-2"></i>New Employee
+        </a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{ url_for('finance.create_invoice') }}">
+            <i class="fas fa-file-invoice me-2"></i>Create Invoice
+        </a></li>
+    </ul>
+</div>
+{% endblock %}

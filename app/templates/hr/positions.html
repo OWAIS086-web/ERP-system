@@ -1,0 +1,314 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Job Positions{% endblock %}
+{% block page_subtitle %}Manage job positions and roles{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Job Positions</h2>
+            <p class="text-muted">Manage job positions, requirements, and compensation ranges</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('hr.add_position') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Position
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ positions|length }}</h3>
+                    <p class="text-muted mb-0">Total Positions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ positions|selectattr('is_active')|list|length }}</h3>
+                    <p class="text-muted mb-0">Active Positions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ total_employees }}</h3>
+                    <p class="text-muted mb-0">Filled Positions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ departments|length }}</h3>
+                    <p class="text-muted mb-0">Departments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ request.args.get('search', '') }}" 
+                                   placeholder="Search positions...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" id="department" name="department">
+                                <option value="">All Departments</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}" 
+                                            {% if request.args.get('department') == dept.id|string %}selected{% endif %}>
+                                        {{ dept.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="job_level" class="form-label">Level</label>
+                            <select class="form-select" id="job_level" name="job_level">
+                                <option value="">All Levels</option>
+                                <option value="entry" {% if request.args.get('job_level') == 'entry' %}selected{% endif %}>Entry</option>
+                                <option value="junior" {% if request.args.get('job_level') == 'junior' %}selected{% endif %}>Junior</option>
+                                <option value="senior" {% if request.args.get('job_level') == 'senior' %}selected{% endif %}>Senior</option>
+                                <option value="lead" {% if request.args.get('job_level') == 'lead' %}selected{% endif %}>Lead</option>
+                                <option value="manager" {% if request.args.get('job_level') == 'manager' %}selected{% endif %}>Manager</option>
+                                <option value="director" {% if request.args.get('job_level') == 'director' %}selected{% endif %}>Director</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {% if request.args.get('status') == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if request.args.get('status') == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                            <a href="{{ url_for('hr.positions') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Positions List -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Job Positions</h5>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleView('grid')">
+                            <i class="fas fa-th"></i> Grid
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary active" onclick="toggleView('list')">
+                            <i class="fas fa-list"></i> List
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if positions %}
+                        <!-- List View -->
+                        <div id="listView" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Department</th>
+                                        <th>Level</th>
+                                        <th>Employment Type</th>
+                                        <th>Salary Range</th>
+                                        <th>Employees</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for position in positions %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <a href="{{ url_for('hr.position_detail', id=position.id) }}" class="text-decoration-none">
+                                                        <strong>{{ position.title }}</strong>
+                                                    </a>
+                                                    <br><small class="text-muted">{{ position.code }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if position.department %}
+                                                    <a href="{{ url_for('hr.department_detail', id=position.department.id) }}">
+                                                        {{ position.department.name }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">No department</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ position.job_level|title }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ position.employment_type|replace('_', ' ')|title }}</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ position.salary_range }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">{{ position.employees|length }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if position.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                                    {% if position.is_active %}Active{% else %}Inactive{% endif %}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ url_for('hr.position_detail', id=position.id) }}" 
+                                                       class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ url_for('hr.edit_position', id=position.id) }}" 
+                                                       class="btn btn-outline-secondary btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                            onclick="deletePosition({{ position.id }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Grid View -->
+                        <div id="gridView" class="row" style="display: none;">
+                            {% for position in positions %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-title">{{ position.title }}</h6>
+                                                <span class="badge {% if position.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                                    {% if position.is_active %}Active{% else %}Inactive{% endif %}
+                                                </span>
+                                            </div>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ position.code }}</small><br>
+                                                {% if position.department %}
+                                                    <small>{{ position.department.name }}</small>
+                                                {% endif %}
+                                            </p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-info me-1">{{ position.job_level|title }}</span>
+                                                <span class="badge bg-secondary">{{ position.employment_type|replace('_', ' ')|title }}</span>
+                                            </div>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ position.salary_range }}</small><br>
+                                                <small class="text-muted">{{ position.employees|length }} employees</small>
+                                            </p>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <div class="btn-group w-100">
+                                                <a href="{{ url_for('hr.position_detail', id=position.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ url_for('hr.edit_position', id=position.id) }}" 
+                                                   class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No job positions found</h5>
+                            <p class="text-muted">Create your first job position to get started.</p>
+                            <a href="{{ url_for('hr.add_position') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add First Position
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleView(viewType) {
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (viewType === 'grid') {
+        listView.style.display = 'none';
+        gridView.style.display = 'block';
+        event.target.classList.add('active');
+    } else {
+        listView.style.display = 'block';
+        gridView.style.display = 'none';
+        event.target.classList.add('active');
+    }
+}
+
+function deletePosition(positionId) {
+    if (confirm('Are you sure you want to delete this position? This action cannot be undone.')) {
+        fetch(`/hr/positions/${positionId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting position: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting position');
+        });
+    }
+}
+
+// Auto-submit form on filter change
+document.querySelectorAll('#department, #job_level, #status').forEach(select => {
+    select.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
+{% endblock %}

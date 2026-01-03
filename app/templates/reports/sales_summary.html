@@ -1,0 +1,423 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Sales Summary Report{% endblock %}
+{% block page_subtitle %}Comprehensive sales performance analysis{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('reports.index') }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Sales Summary</li>
+                </ol>
+            </nav>
+            <h2>Sales Summary Report</h2>
+            <p class="text-muted">Analyze sales performance across different dimensions</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary" onclick="exportReport('pdf')">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="exportReport('excel')">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="refreshReport()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3" id="filterForm">
+                        <div class="col-md-3">
+                            <label for="date_range" class="form-label">Date Range</label>
+                            <select class="form-select" id="date_range" name="date_range">
+                                <option value="today" {% if request.args.get('date_range') == 'today' %}selected{% endif %}>Today</option>
+                                <option value="yesterday" {% if request.args.get('date_range') == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                                <option value="this_week" {% if request.args.get('date_range') == 'this_week' %}selected{% endif %}>This Week</option>
+                                <option value="last_week" {% if request.args.get('date_range') == 'last_week' %}selected{% endif %}>Last Week</option>
+                                <option value="this_month" {% if request.args.get('date_range') == 'this_month' or not request.args.get('date_range') %}selected{% endif %}>This Month</option>
+                                <option value="last_month" {% if request.args.get('date_range') == 'last_month' %}selected{% endif %}>Last Month</option>
+                                <option value="this_quarter" {% if request.args.get('date_range') == 'this_quarter' %}selected{% endif %}>This Quarter</option>
+                                <option value="this_year" {% if request.args.get('date_range') == 'this_year' %}selected{% endif %}>This Year</option>
+                                <option value="custom" {% if request.args.get('date_range') == 'custom' %}selected{% endif %}>Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2" id="start_date_col" style="display: none;">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                   value="{{ request.args.get('start_date', '') }}">
+                        </div>
+                        <div class="col-md-2" id="end_date_col" style="display: none;">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="{{ request.args.get('end_date', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customer_id" class="form-label">Customer</label>
+                            <select class="form-select" id="customer_id" name="customer_id">
+                                <option value="">All Customers</option>
+                                {% for customer in customers %}
+                                    <option value="{{ customer.id }}" 
+                                            {% if request.args.get('customer_id') == customer.id|string %}selected{% endif %}>
+                                        {{ customer.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="shipped" {% if request.args.get('status') == 'shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="cancelled" {% if request.args.get('status') == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">${{ "{:,.2f}".format(metrics.total_sales or 0) }}</h3>
+                    <p class="text-muted mb-1">Total Sales</p>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i> {{ metrics.sales_growth or 0 }}% vs last period
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ metrics.total_orders or 0 }}</h3>
+                    <p class="text-muted mb-1">Total Orders</p>
+                    <small class="text-info">
+                        <i class="fas fa-shopping-cart"></i> {{ metrics.orders_growth or 0 }}% vs last period
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">${{ "{:,.2f}".format(metrics.average_order_value or 0) }}</h3>
+                    <p class="text-muted mb-1">Avg Order Value</p>
+                    <small class="text-warning">
+                        <i class="fas fa-chart-line"></i> {{ metrics.aov_growth or 0 }}% vs last period
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ metrics.unique_customers or 0 }}</h3>
+                    <p class="text-muted mb-1">Unique Customers</p>
+                    <small class="text-primary">
+                        <i class="fas fa-users"></i> {{ metrics.customer_growth or 0 }}% vs last period
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sales Trend Chart -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sales Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesTrendChart" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Top Selling Products</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_products %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Quantity Sold</th>
+                                        <th class="text-end">Revenue</th>
+                                        <th class="text-center">% of Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in top_products %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ product.name }}</strong>
+                                                <br><small class="text-muted">{{ product.sku }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">{{ product.quantity_sold }}</span>
+                                            </td>
+                                            <td class="text-end">${{ "{:,.2f}".format(product.revenue) }}</td>
+                                            <td class="text-center">
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar" role="progressbar" 
+                                                         style="width: {{ product.percentage }}%" 
+                                                         aria-valuenow="{{ product.percentage }}" 
+                                                         aria-valuemin="0" aria-valuemax="100">
+                                                        {{ "%.1f"|format(product.percentage) }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No product sales data available for the selected period.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales by Category & Customer Analysis -->
+        <div class="col-md-4">
+            <!-- Sales by Category -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Sales by Category</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Top Customers</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_customers %}
+                        {% for customer in top_customers %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-1">{{ customer.name }}</h6>
+                                    <small class="text-muted">{{ customer.orders_count }} orders</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>${{ "{:,.2f}".format(customer.total_sales) }}</strong>
+                                    <br><small class="text-muted">{{ "%.1f"|format(customer.percentage) }}%</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No customer data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sales Performance -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Performance Metrics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h5 class="text-success">{{ metrics.conversion_rate or 0 }}%</h5>
+                            <small class="text-muted">Conversion Rate</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h5 class="text-info">{{ metrics.repeat_customer_rate or 0 }}%</h5>
+                            <small class="text-muted">Repeat Customers</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-warning">${{ "{:,.2f}".format(metrics.revenue_per_customer or 0) }}</h5>
+                            <small class="text-muted">Revenue/Customer</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-primary">{{ metrics.avg_days_to_close or 0 }}</h5>
+                            <small class="text-muted">Avg Days to Close</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Period Comparison -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Period Comparison</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Current Period:</span>
+                                <strong>${{ "{:,.2f}".format(metrics.current_period_sales or 0) }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Previous Period:</span>
+                                <strong>${{ "{:,.2f}".format(metrics.previous_period_sales or 0) }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Growth:</span>
+                                <strong class="{% if (metrics.sales_growth or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if (metrics.sales_growth or 0) >= 0 %}+{% endif %}{{ metrics.sales_growth or 0 }}%
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Handle date range selection
+document.getElementById('date_range').addEventListener('change', function() {
+    const customCols = document.querySelectorAll('#start_date_col, #end_date_col');
+    if (this.value === 'custom') {
+        customCols.forEach(col => col.style.display = 'block');
+    } else {
+        customCols.forEach(col => col.style.display = 'none');
+    }
+});
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    // Sales Trend Chart
+    const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_trend_labels|tojson }},
+            datasets: [{
+                label: 'Sales Revenue',
+                data: {{ sales_trend_data|tojson }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Sales: $' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels|tojson }},
+            datasets: [{
+                data: {{ category_data|tojson }},
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': $' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Show custom date fields if custom is selected
+    if (document.getElementById('date_range').value === 'custom') {
+        document.querySelectorAll('#start_date_col, #end_date_col').forEach(col => {
+            col.style.display = 'block';
+        });
+    }
+});
+
+function exportReport(format) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', format);
+    window.open(`{{ url_for('reports.sales_summary') }}?${params.toString()}`, '_blank');
+}
+
+function refreshReport() {
+    location.reload();
+}
+
+// Auto-submit form on filter change
+document.querySelectorAll('#customer_id, #status').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+</script>
+{% endblock %}

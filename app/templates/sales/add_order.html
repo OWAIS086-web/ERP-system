@@ -1,0 +1,376 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Create Order{% endblock %}
+{% block page_subtitle %}Create a new sales order{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Sales</span>
+<span class="breadcrumb-item"><a href="{{ url_for('sales.orders') }}">Orders</a></span>
+<span class="breadcrumb-item active">Create Order</span>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('sales.orders') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to Orders
+</a>
+{% endblock %}
+
+{% block page_content %}
+<form method="POST" id="orderForm" class="needs-validation" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Information -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customer_id" class="form-label">Customer *</label>
+                                <select class="form-select" id="customer_id" name="customer_id" required>
+                                    <option value="">Select Customer</option>
+                                    <option value="1">John Smith - Acme Corporation</option>
+                                    <option value="2">Sarah Johnson - Tech Solutions Inc</option>
+                                    <option value="3">Michael Brown - Global Enterprises</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a customer.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="order_date" class="form-label">Order Date *</label>
+                                <input type="date" class="form-control" id="order_date" name="order_date" required>
+                                <div class="invalid-feedback">Please provide an order date.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="delivery_date" class="form-label">Expected Delivery</label>
+                                <input type="date" class="form-control" id="delivery_date" name="delivery_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="normal">Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Items -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Order Items</h5>
+                        <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="orderItemsTable">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="15%">Quantity</th>
+                                    <th width="15%">Unit Price</th>
+                                    <th width="15%">Total</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderItemsBody">
+                                <tr class="order-item-row">
+                                    <td>
+                                        <select class="form-select product-select" name="items[0][product_id]" required>
+                                            <option value="">Select Product</option>
+                                            <option value="1" data-price="25.00">Widget A - $25.00</option>
+                                            <option value="2" data-price="45.50">Widget B - $45.50</option>
+                                            <option value="3" data-price="120.00">Premium Widget - $120.00</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control quantity-input" name="items[0][quantity]" min="1" value="1" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control price-input" name="items[0][unit_price]" step="0.01" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control total-input" name="items[0][total]" step="0.01" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h5 class="card-title">Additional Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="notes" class="form-label">Order Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any special instructions or notes..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="shipping_method" class="form-label">Shipping Method</label>
+                                <select class="form-select" id="shipping_method" name="shipping_method">
+                                    <option value="standard">Standard Shipping</option>
+                                    <option value="express">Express Shipping</option>
+                                    <option value="overnight">Overnight</option>
+                                    <option value="pickup">Customer Pickup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="payment_terms" class="form-label">Payment Terms</label>
+                                <select class="form-select" id="payment_terms" name="payment_terms">
+                                    <option value="net_30">Net 30</option>
+                                    <option value="net_15">Net 15</option>
+                                    <option value="due_on_receipt">Due on Receipt</option>
+                                    <option value="cash_on_delivery">Cash on Delivery</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Order Summary -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (8.5%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span id="shipping">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount:</span>
+                            <span id="discount">$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="form-group">
+                            <label for="discount_amount" class="form-label">Discount Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="discount_amount" name="discount_amount" step="0.01" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shipping_cost" class="form-label">Shipping Cost</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="shipping_cost" name="shipping_cost" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Status -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h5 class="card-title">Order Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="draft">Draft</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="send_confirmation" name="send_confirmation" checked>
+                        <label class="form-check-label" for="send_confirmation">
+                            Send confirmation email
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="glass-card mt-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('sales.orders') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" id="saveDraftBtn">
+                        <i class="fas fa-save"></i> Save as Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Create Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let itemIndex = 1;
+    
+    // Add new item row
+    $('#addItemBtn').click(function() {
+        const newRow = `
+            <tr class="order-item-row">
+                <td>
+                    <select class="form-select product-select" name="items[${itemIndex}][product_id]" required>
+                        <option value="">Select Product</option>
+                        <option value="1" data-price="25.00">Widget A - $25.00</option>
+                        <option value="2" data-price="45.50">Widget B - $45.50</option>
+                        <option value="3" data-price="120.00">Premium Widget - $120.00</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="form-control quantity-input" name="items[${itemIndex}][quantity]" min="1" value="1" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control price-input" name="items[${itemIndex}][unit_price]" step="0.01" readonly>
+                </td>
+                <td>
+                    <input type="number" class="form-control total-input" name="items[${itemIndex}][total]" step="0.01" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        $('#orderItemsBody').append(newRow);
+        itemIndex++;
+    });
+    
+    // Remove item row
+    $(document).on('click', '.remove-item-btn', function() {
+        if ($('.order-item-row').length > 1) {
+            $(this).closest('tr').remove();
+            calculateTotal();
+        }
+    });
+    
+    // Product selection change
+    $(document).on('change', '.product-select', function() {
+        const price = $(this).find(':selected').data('price') || 0;
+        const row = $(this).closest('tr');
+        row.find('.price-input').val(price);
+        calculateRowTotal(row);
+    });
+    
+    // Quantity change
+    $(document).on('input', '.quantity-input', function() {
+        const row = $(this).closest('tr');
+        calculateRowTotal(row);
+    });
+    
+    // Calculate row total
+    function calculateRowTotal(row) {
+        const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+        const price = parseFloat(row.find('.price-input').val()) || 0;
+        const total = quantity * price;
+        row.find('.total-input').val(total.toFixed(2));
+        calculateTotal();
+    }
+    
+    // Calculate order total
+    function calculateTotal() {
+        let subtotal = 0;
+        $('.total-input').each(function() {
+            subtotal += parseFloat($(this).val()) || 0;
+        });
+        
+        const discountAmount = parseFloat($('#discount_amount').val()) || 0;
+        const shippingCost = parseFloat($('#shipping_cost').val()) || 0;
+        const taxRate = 0.085; // 8.5%
+        
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax + shippingCost - discountAmount;
+        
+        $('#subtotal').text('$' + subtotal.toFixed(2));
+        $('#tax').text('$' + tax.toFixed(2));
+        $('#shipping').text('$' + shippingCost.toFixed(2));
+        $('#discount').text('$' + discountAmount.toFixed(2));
+        $('#total').text('$' + total.toFixed(2));
+    }
+    
+    // Discount and shipping change
+    $('#discount_amount, #shipping_cost').on('input', calculateTotal);
+    
+    // Set today's date as default
+    $('#order_date').val(new Date().toISOString().split('T')[0]);
+    
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+});
+</script>
+{% endblock %}

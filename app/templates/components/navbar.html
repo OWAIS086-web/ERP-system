@@ -1,0 +1,218 @@
+<nav class="navbar glass-card navbar-enhanced">
+    <div class="navbar-content">
+        <div class="navbar-left">
+            <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar (Ctrl+/)">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="breadcrumb">
+                {% block breadcrumb %}
+                <span class="breadcrumb-item active">Dashboard</span>
+                {% endblock %}
+            </div>
+        </div>
+        
+        <div class="navbar-center">
+            <!-- Global Search -->
+            <div class="global-search">
+                <div class="search-box">
+                    <input type="text" class="form-control" placeholder="Search across all modules... (Ctrl+K)" id="globalSearch">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="search-results dropdown-enhanced" id="searchResults" style="display: none;">
+                    <!-- Search results will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="navbar-right">
+            <!-- Quick Actions -->
+            <div class="dropdown navbar-dropdown">
+                <button class="btn btn-icon quick-add-btn" data-bs-toggle="dropdown" data-bs-auto-close="true" title="Quick Add (Ctrl+N)" aria-label="Quick Add">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end quick-add-menu">
+                    <li class="dropdown-header">
+                        <i class="fas fa-plus me-2"></i>Quick Add
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('sales.add_customer') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-user-plus text-primary"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Customer</span>
+                                <small class="dropdown-item-shortcut">Alt+C</small>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('sales.add_order') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-shopping-cart text-success"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Order</span>
+                                <small class="dropdown-item-shortcut">Alt+O</small>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('inventory.add_product') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-box text-warning"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Product</span>
+                                <small class="dropdown-item-shortcut">Alt+P</small>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('finance.create_invoice') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-file-invoice text-info"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Invoice</span>
+                                <small class="dropdown-item-shortcut">Alt+I</small>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('hr.add_employee') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-user-tie" style="color: #8b5cf6;"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Employee</span>
+                                <small class="dropdown-item-shortcut">Alt+E</small>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('procurement.add_supplier') }}">
+                        <div class="dropdown-item-content">
+                            <i class="fas fa-truck" style="color: #f97316;"></i>
+                            <div class="dropdown-item-text">
+                                <span class="dropdown-item-title">New Supplier</span>
+                            </div>
+                        </div>
+                    </a></li>
+                </ul>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="dropdown navbar-dropdown">
+                <button class="btn btn-icon notification-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Notifications" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge notification-badge">3</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end notification-menu">
+                    <li class="dropdown-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                        <button class="btn btn-sm btn-link text-muted" data-action="mark-all-read" title="Mark all as read">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item notification-item urgent" href="#" role="button">
+                        <div class="notification-content-wrapper">
+                            <div class="notification-icon bg-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">System Alert</div>
+                                <div class="notification-text">Database backup failed - immediate attention required</div>
+                                <div class="notification-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item notification-item" href="#" role="button">
+                        <div class="notification-content-wrapper">
+                            <div class="notification-icon bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">Payment Overdue</div>
+                                <div class="notification-text">Invoice #INV-001 is 5 days overdue</div>
+                                <div class="notification-time">1 hour ago</div>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><a class="dropdown-item notification-item" href="#" role="button">
+                        <div class="notification-content-wrapper">
+                            <div class="notification-icon bg-info">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">Low Stock Alert</div>
+                                <div class="notification-text">5 products are running low on inventory</div>
+                                <div class="notification-time">3 hours ago</div>
+                            </div>
+                        </div>
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center view-all-link" href="/notifications">
+                        <i class="fas fa-list me-2"></i>View all notifications
+                    </a></li>
+                </ul>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="dropdown navbar-dropdown">
+                <button class="btn btn-user" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-label="User Menu">
+                    <div class="user-avatar">
+                        {% if current_user.is_authenticated and current_user.avatar %}
+                            <img src="{{ current_user.avatar }}" alt="User Avatar" class="rounded-circle">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="user-info-dropdown">
+                        <span class="user-name">{{ current_user.full_name if current_user.is_authenticated else 'Guest' }}</span>
+                        <span class="user-role">{{ current_user.role.title() if current_user.is_authenticated else 'Not logged in' }}</span>
+                    </div>
+                    <i class="fas fa-chevron-down user-chevron"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end user-menu">
+                    <li class="dropdown-header">
+                        <div class="user-profile-header">
+                            <div class="user-avatar-large">
+                                {% if current_user.is_authenticated and current_user.avatar %}
+                                    <img src="{{ current_user.avatar }}" alt="User Avatar" class="rounded-circle">
+                                {% else %}
+                                    <i class="fas fa-user"></i>
+                                {% endif %}
+                            </div>
+                            <div class="user-profile-info">
+                                <div class="user-name-large">{{ current_user.full_name if current_user.is_authenticated else 'Guest' }}</div>
+                                <div class="user-email">{{ current_user.email if current_user.is_authenticated else 'Not logged in' }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/profile">
+                        <i class="fas fa-user"></i> My Profile
+                    </a></li>
+                    <li><a class="dropdown-item" href="/settings">
+                        <i class="fas fa-cog"></i> Account Settings
+                    </a></li>
+                    <li><a class="dropdown-item" href="/settings/notifications">
+                        <i class="fas fa-bell"></i> Notification Settings
+                    </a></li>
+                    <li><a class="dropdown-item" href="/settings/security">
+                        <i class="fas fa-shield-alt"></i> Privacy & Security
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/help">
+                        <i class="fas fa-question-circle"></i> Help & Support
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shortcutsModal">
+                        <i class="fas fa-keyboard"></i> Keyboard Shortcuts
+                        <small class="text-muted ms-auto">?</small>
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a class="dropdown-item text-danger logout-item" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </a></li>
+                    {% else %}
+                        <li><a class="dropdown-item text-primary" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

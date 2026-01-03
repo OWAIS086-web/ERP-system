@@ -1,0 +1,415 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add Product{% endblock %}
+{% block page_subtitle %}Create a new product in inventory{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Inventory</span>
+<span class="breadcrumb-item"><a href="{{ url_for('inventory.products') }}">Products</a></span>
+<span class="breadcrumb-item active">Add Product</span>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('inventory.products') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to Products
+</a>
+{% endblock %}
+
+{% block page_content %}
+<form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Basic Information -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Product Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="invalid-feedback">Please provide a product name.</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="sku" class="form-label">SKU *</label>
+                                <input type="text" class="form-control" id="sku" name="sku" required>
+                                <div class="form-text">Unique product identifier</div>
+                                <div class="invalid-feedback">Please provide a SKU.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="barcode" class="form-label">Barcode</label>
+                                <input type="text" class="form-control" id="barcode" name="barcode">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" placeholder="Detailed product description..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="short_description" class="form-label">Short Description</label>
+                        <textarea class="form-control" id="short_description" name="short_description" rows="2" placeholder="Brief product summary..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pricing -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Pricing</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="cost_price" class="form-label">Cost Price</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01">
+                                </div>
+                                <div class="form-text">Your cost to acquire this product</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="selling_price" class="form-label">Selling Price *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="selling_price" name="selling_price" step="0.01" required>
+                                </div>
+                                <div class="invalid-feedback">Please provide a selling price.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="msrp" class="form-label">MSRP</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="msrp" name="msrp" step="0.01">
+                                </div>
+                                <div class="form-text">Manufacturer's suggested retail price</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tax_exempt" name="tax_exempt">
+                                <label class="form-check-label" for="tax_exempt">
+                                    Tax Exempt
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tax_rate" class="form-label">Tax Rate (%)</label>
+                                <input type="number" class="form-control" id="tax_rate" name="tax_rate" step="0.01" value="8.5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Inventory -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Inventory Management</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="initial_stock" class="form-label">Initial Stock</label>
+                                <input type="number" class="form-control" id="initial_stock" name="initial_stock" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="min_stock" class="form-label">Minimum Stock Level</label>
+                                <input type="number" class="form-control" id="min_stock" name="min_stock" min="0" value="5">
+                                <div class="form-text">Alert when stock falls below this level</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="max_stock" class="form-label">Maximum Stock Level</label>
+                                <input type="number" class="form-control" id="max_stock" name="max_stock" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="unit" class="form-label">Unit of Measure</label>
+                                <select class="form-select" id="unit" name="unit">
+                                    <option value="piece">Piece</option>
+                                    <option value="kg">Kilogram</option>
+                                    <option value="lb">Pound</option>
+                                    <option value="liter">Liter</option>
+                                    <option value="gallon">Gallon</option>
+                                    <option value="meter">Meter</option>
+                                    <option value="foot">Foot</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="track_inventory" name="track_inventory" checked>
+                                <label class="form-check-label" for="track_inventory">
+                                    Track Inventory
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Specifications -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h5 class="card-title">Product Specifications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="weight" class="form-label">Weight</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="weight" name="weight" step="0.01">
+                                    <span class="input-group-text">lbs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="length" class="form-label">Length</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="length" name="length" step="0.01">
+                                    <span class="input-group-text">in</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="width" class="form-label">Width</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="width" name="width" step="0.01">
+                                    <span class="input-group-text">in</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="height" class="form-label">Height</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="height" name="height" step="0.01">
+                                    <span class="input-group-text">in</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Product Image -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Product Image</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="product-image-upload">
+                        <div class="image-preview" id="imagePreview">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                            <p class="text-muted mt-2">No image selected</p>
+                        </div>
+                        <input type="file" class="form-control mt-3" id="product_image" name="product_image" accept="image/*">
+                        <div class="form-text">Upload product image (JPG, PNG, max 5MB)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Category & Status -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Category & Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="category" class="form-label">Category *</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="books">Books</option>
+                            <option value="home_garden">Home & Garden</option>
+                            <option value="sports">Sports</option>
+                            <option value="automotive">Automotive</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a category.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="brand" class="form-label">Brand</label>
+                        <input type="text" class="form-control" id="brand" name="brand">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="discontinued">Discontinued</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="featured" name="featured">
+                        <label class="form-check-label" for="featured">
+                            Featured Product
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Supplier Information -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h5 class="card-title">Supplier Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="supplier" class="form-label">Primary Supplier</label>
+                        <select class="form-select" id="supplier" name="supplier">
+                            <option value="">Select Supplier</option>
+                            <option value="1">ABC Suppliers Inc</option>
+                            <option value="2">Global Parts Co</option>
+                            <option value="3">Premium Wholesale</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supplier_sku" class="form-label">Supplier SKU</label>
+                        <input type="text" class="form-control" id="supplier_sku" name="supplier_sku">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead_time" class="form-label">Lead Time (days)</label>
+                        <input type="number" class="form-control" id="lead_time" name="lead_time" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="glass-card mt-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('inventory.products') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-save"></i> Save as Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Create Product
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.product-image-upload {
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.product-image-upload:hover {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.image-preview {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview
+document.getElementById('product_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Product Preview">`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = `
+            <i class="fas fa-image fa-3x text-muted"></i>
+            <p class="text-muted mt-2">No image selected</p>
+        `;
+    }
+});
+
+// Auto-generate SKU based on product name
+document.getElementById('name').addEventListener('input', function(e) {
+    const name = e.target.value;
+    const sku = name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
+    if (sku && !document.getElementById('sku').value) {
+        document.getElementById('sku').value = sku + '-001';
+    }
+});
+
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

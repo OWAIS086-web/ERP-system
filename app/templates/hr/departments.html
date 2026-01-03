@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Departments{% endblock %}
+{% block page_subtitle %}Manage organizational departments{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title">Departments</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Manager</th>
+                                <th>Employees</th>
+                                <th>Budget</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Engineering</td>
+                                <td>John Smith</td>
+                                <td>15</td>
+                                <td class="currency">250,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title">Department Stats</h5>
+            </div>
+            <div class="card-body">
+                <p>Total Departments: <strong>5</strong></p>
+                <p>Total Employees: <strong>45</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

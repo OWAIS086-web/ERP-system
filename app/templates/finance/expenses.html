@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Expenses{% endblock %}
+{% block page_subtitle %}Track business expenses and costs{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Finance</span>
+<span class="breadcrumb-item active">Expenses</span>
+{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+    <i class="fas fa-plus"></i> Add Expense
+</button>
+{% endblock %}
+
+{% block page_content %}
+<!-- Expense Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon danger mb-3">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="stat-number currency">25,450.00</h3>
+                <p class="stat-label">Total Expenses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon warning mb-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="stat-number">12</h3>
+                <p class="stat-label">Pending Approval</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon primary mb-3">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="stat-number">156</h3>
+                <p class="stat-label">This Month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expenses Table -->
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Expense List</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Jan 03, 2026</td>
+                        <td>Office Supplies</td>
+                        <td>Office Expenses</td>
+                        <td class="currency">125.50</td>
+                        <td><span class="status-badge completed">Approved</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="expenseDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="expenseDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory" class="form-label">Category</label>
+                        <select class="form-select" id="expenseCategory" required>
+                            <option value="office">Office Expenses</option>
+                            <option value="travel">Travel</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="utilities">Utilities</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

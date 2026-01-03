@@ -1,0 +1,356 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}Manage your notifications and alerts{% endblock %}
+
+{% block page_icon %}
+<i class="fas fa-bell text-primary"></i>
+{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-outline-primary" id="markAllRead">
+    <i class="fas fa-check-double"></i> Mark All Read
+</button>
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notificationSettingsModal">
+    <i class="fas fa-cog"></i> Settings
+</button>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Notifications</li>
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bell me-2"></i>All Notifications
+                    </h5>
+                    <div class="notification-filters">
+                        <button class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
+                        <button class="btn btn-sm btn-outline-primary" data-filter="unread">Unread</button>
+                        <button class="btn btn-sm btn-outline-primary" data-filter="important">Important</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="notification-list">
+                    <!-- Critical Notification -->
+                    <div class="notification-item unread critical">
+                        <div class="notification-icon bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-title">System Alert</div>
+                                <div class="notification-time">2 minutes ago</div>
+                            </div>
+                            <div class="notification-text">Database backup failed - immediate attention required. Please check the backup system configuration.</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                <button class="btn btn-sm btn-outline-secondary">Dismiss</button>
+                            </div>
+                        </div>
+                        <div class="notification-status">
+                            <span class="badge priority-critical">Critical</span>
+                        </div>
+                    </div>
+
+                    <!-- Warning Notification -->
+                    <div class="notification-item unread">
+                        <div class="notification-icon bg-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-title">Payment Overdue</div>
+                                <div class="notification-time">1 hour ago</div>
+                            </div>
+                            <div class="notification-text">Invoice #INV-001 from ABC Corp is 5 days overdue. Total amount: $2,500.00</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-primary">View Invoice</button>
+                                <button class="btn btn-sm btn-outline-success">Send Reminder</button>
+                            </div>
+                        </div>
+                        <div class="notification-status">
+                            <span class="badge priority-high">High</span>
+                        </div>
+                    </div>
+
+                    <!-- Info Notification -->
+                    <div class="notification-item unread">
+                        <div class="notification-icon bg-info">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-title">Low Stock Alert</div>
+                                <div class="notification-time">3 hours ago</div>
+                            </div>
+                            <div class="notification-text">5 products are running low on inventory. Consider restocking soon.</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-primary">View Products</button>
+                                <button class="btn btn-sm btn-outline-success">Create Purchase Order</button>
+                            </div>
+                        </div>
+                        <div class="notification-status">
+                            <span class="badge priority-medium">Medium</span>
+                        </div>
+                    </div>
+
+                    <!-- Success Notification -->
+                    <div class="notification-item read">
+                        <div class="notification-icon bg-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-title">Order Completed</div>
+                                <div class="notification-time">5 hours ago</div>
+                            </div>
+                            <div class="notification-text">Order #ORD-123 has been successfully completed and shipped to customer.</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-primary">View Order</button>
+                            </div>
+                        </div>
+                        <div class="notification-status">
+                            <span class="badge priority-low">Low</span>
+                        </div>
+                    </div>
+
+                    <!-- System Notification -->
+                    <div class="notification-item read">
+                        <div class="notification-icon bg-primary">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-title">New User Registration</div>
+                                <div class="notification-time">1 day ago</div>
+                            </div>
+                            <div class="notification-text">John Smith has registered as a new user and is pending approval.</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-success">Approve</button>
+                                <button class="btn btn-sm btn-outline-danger">Reject</button>
+                            </div>
+                        </div>
+                        <div class="notification-status">
+                            <span class="badge priority-medium">Medium</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Settings Modal -->
+<div class="modal fade" id="notificationSettingsModal" tabindex="-1" aria-labelledby="notificationSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationSettingsModalLabel">
+                    <i class="fas fa-cog me-2"></i>Notification Settings
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Email Notifications</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="emailSystem" checked>
+                            <label class="form-check-label" for="emailSystem">System Alerts</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="emailOrders" checked>
+                            <label class="form-check-label" for="emailOrders">Order Updates</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="emailPayments">
+                            <label class="form-check-label" for="emailPayments">Payment Notifications</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="emailInventory" checked>
+                            <label class="form-check-label" for="emailInventory">Inventory Alerts</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Push Notifications</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="pushSystem" checked>
+                            <label class="form-check-label" for="pushSystem">System Alerts</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="pushOrders" checked>
+                            <label class="form-check-label" for="pushOrders">Order Updates</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="pushPayments" checked>
+                            <label class="form-check-label" for="pushPayments">Payment Notifications</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="pushInventory" checked>
+                            <label class="form-check-label" for="pushInventory">Inventory Alerts</label>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Notification Frequency</h6>
+                        <select class="form-select">
+                            <option value="immediate">Immediate</option>
+                            <option value="hourly">Hourly Digest</option>
+                            <option value="daily" selected>Daily Digest</option>
+                            <option value="weekly">Weekly Digest</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.notification-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    gap: 16px;
+}
+
+.notification-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.notification-item.unread {
+    background: rgba(59, 130, 246, 0.05);
+    border-left: 4px solid var(--primary-color);
+}
+
+.notification-item.critical {
+    border-left-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.notification-item.read {
+    opacity: 0.7;
+}
+
+.notification-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.notification-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.notification-status {
+    flex-shrink: 0;
+}
+
+.notification-filters {
+    display: flex;
+    gap: 8px;
+}
+
+.notification-filters .btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Filter notifications
+    $('.notification-filters .btn').click(function() {
+        $('.notification-filters .btn').removeClass('active');
+        $(this).addClass('active');
+        
+        const filter = $(this).data('filter');
+        const items = $('.notification-item');
+        
+        items.show();
+        
+        if (filter === 'unread') {
+            items.not('.unread').hide();
+        } else if (filter === 'important') {
+            items.not('.critical').hide();
+        }
+    });
+    
+    // Mark all as read
+    $('#markAllRead').click(function() {
+        $('.notification-item.unread').removeClass('unread').addClass('read');
+        window.notificationManager?.showToast('All notifications marked as read', 'success');
+    });
+    
+    // Dismiss notification
+    $('.notification-actions .btn-outline-secondary').click(function() {
+        $(this).closest('.notification-item').fadeOut();
+    });
+});
+</script>
+{% endblock %}

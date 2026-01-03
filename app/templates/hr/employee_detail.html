@@ -1,0 +1,405 @@
+{% extends "layout.html" %}
+
+{% block page_title %}{{ employee.full_name }} - Employee Profile{% endblock %}
+{% block page_subtitle %}Employee Information and Details{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('hr.list_employees') }}">Employees</a></li>
+                    <li class="breadcrumb-item active">{{ employee.full_name }}</li>
+                </ol>
+            </nav>
+            <h2>{{ employee.full_name }}</h2>
+            <p class="text-muted">{{ employee.position.title if employee.position else 'No Position Assigned' }} - {{ employee.department.name if employee.department else 'No Department' }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('hr.edit_employee', id=employee.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('hr.employee_attendance', id=employee.id) }}">
+                        <i class="fas fa-clock"></i> Attendance
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('hr.employee_leave_requests', id=employee.id) }}">
+                        <i class="fas fa-calendar-times"></i> Leave Requests
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('hr.employee_payroll', id=employee.id) }}">
+                        <i class="fas fa-money-bill"></i> Payroll
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('hr.employee_performance', id=employee.id) }}">
+                        <i class="fas fa-chart-line"></i> Performance
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmTermination()">
+                        <i class="fas fa-user-times"></i> Terminate
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Status Alert -->
+    {% if employee.employment_status != 'active' %}
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle"></i>
+            This employee is currently <strong>{{ employee.employment_status|title }}</strong>
+            {% if employee.termination_date %}
+                since {{ employee.termination_date.strftime('%B %d, %Y') }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Personal Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Employee ID:</td>
+                                    <td>{{ employee.employee_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Full Name:</td>
+                                    <td>{{ employee.full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Date of Birth:</td>
+                                    <td>{{ employee.date_of_birth.strftime('%B %d, %Y') if employee.date_of_birth else 'Not specified' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Gender:</td>
+                                    <td>{{ employee.gender|title if employee.gender else 'Not specified' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Marital Status:</td>
+                                    <td>{{ employee.marital_status|title if employee.marital_status else 'Not specified' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Nationality:</td>
+                                    <td>{{ employee.nationality if employee.nationality else 'Not specified' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">National ID:</td>
+                                    <td>{{ employee.national_id if employee.national_id else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Passport:</td>
+                                    <td>{{ employee.passport_number if employee.passport_number else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">SSN:</td>
+                                    <td>{{ employee.social_security_number if employee.social_security_number else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Personal Email:</td>
+                                    <td>{{ employee.personal_email if employee.personal_email else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Phone:</td>
+                                    <td>{{ employee.phone if employee.phone else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Mobile:</td>
+                                    <td>{{ employee.mobile if employee.mobile else 'Not provided' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Employment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Hire Date:</td>
+                                    <td>{{ employee.hire_date.strftime('%B %d, %Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Years of Service:</td>
+                                    <td>{{ "%.1f"|format(employee.years_of_service) }} years</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Employment Type:</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ employee.employment_type|title }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Employment Status:</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if employee.employment_status == 'active' %}bg-success
+                                            {% elif employee.employment_status == 'inactive' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ employee.employment_status|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Department:</td>
+                                    <td>
+                                        {% if employee.department %}
+                                            <a href="{{ url_for('hr.department_detail', id=employee.department.id) }}">
+                                                {{ employee.department.name }}
+                                            </a>
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Position:</td>
+                                    <td>
+                                        {% if employee.position %}
+                                            <a href="{{ url_for('hr.position_detail', id=employee.position.id) }}">
+                                                {{ employee.position.title }}
+                                            </a>
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Manager:</td>
+                                    <td>
+                                        {% if employee.manager %}
+                                            <a href="{{ url_for('hr.employee_detail', id=employee.manager.id) }}">
+                                                {{ employee.manager.full_name }}
+                                            </a>
+                                        {% else %}
+                                            No manager assigned
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Work Location:</td>
+                                    <td>{{ employee.work_location if employee.work_location else 'Not specified' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Base Salary:</td>
+                                    <td>
+                                        {% if employee.base_salary %}
+                                            ${{ "{:,.2f}"|format(employee.base_salary) }} {{ employee.currency }}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Pay Frequency:</td>
+                                    <td>{{ employee.pay_frequency|title if employee.pay_frequency else 'Not specified' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Address Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if employee.address or employee.city or employee.state %}
+                        <address>
+                            {% if employee.address %}{{ employee.address }}<br>{% endif %}
+                            {% if employee.city %}{{ employee.city }}{% endif %}{% if employee.state %}, {{ employee.state }}{% endif %} {% if employee.postal_code %}{{ employee.postal_code }}{% endif %}<br>
+                            {% if employee.country %}{{ employee.country }}{% endif %}
+                        </address>
+                    {% else %}
+                        <p class="text-muted">No address information provided</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Emergency Contact</h5>
+                </div>
+                <div class="card-body">
+                    {% if employee.emergency_contact_name %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Name:</strong><br>
+                                {{ employee.emergency_contact_name }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Phone:</strong><br>
+                                {{ employee.emergency_contact_phone if employee.emergency_contact_phone else 'Not provided' }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Relationship:</strong><br>
+                                {{ employee.emergency_contact_relationship if employee.emergency_contact_relationship else 'Not specified' }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No emergency contact information provided</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h4 class="text-primary">{{ employee.vacation_days_remaining }}</h4>
+                            <small class="text-muted">Vacation Days Left</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="text-success">{{ employee.sick_days_remaining }}</h4>
+                            <small class="text-muted">Sick Days Left</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info">{{ employee.performance_rating if employee.performance_rating else 'N/A' }}</h4>
+                            <small class="text-muted">Performance Rating</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-warning">{{ employee.direct_reports|length }}</h4>
+                            <small class="text-muted">Direct Reports</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Balance -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Leave Balance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Vacation Days</span>
+                            <span>{{ employee.vacation_days_used }}/{{ employee.vacation_days_total }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            {% set vacation_percentage = (employee.vacation_days_used / employee.vacation_days_total * 100) if employee.vacation_days_total > 0 else 0 %}
+                            <div class="progress-bar bg-primary" style="width: {{ vacation_percentage }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Sick Days</span>
+                            <span>{{ employee.sick_days_used }}/{{ employee.sick_days_total }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            {% set sick_percentage = (employee.sick_days_used / employee.sick_days_total * 100) if employee.sick_days_total > 0 else 0 %}
+                            <div class="progress-bar bg-warning" style="width: {{ sick_percentage }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="d-flex justify-content-between">
+                            <span>Personal Days</span>
+                            <span>{{ employee.personal_days_used }}/{{ employee.personal_days_total }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            {% set personal_percentage = (employee.personal_days_used / employee.personal_days_total * 100) if employee.personal_days_total > 0 else 0 %}
+                            <div class="progress-bar bg-info" style="width: {{ personal_percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Reports -->
+            {% if employee.direct_reports %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Direct Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for report in employee.direct_reports %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="flex-grow-1">
+                                    <a href="{{ url_for('hr.employee_detail', id=report.id) }}" class="text-decoration-none">
+                                        {{ report.full_name }}
+                                    </a>
+                                    <br>
+                                    <small class="text-muted">{{ report.position.title if report.position else 'No Position' }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Recent Performance -->
+            {% if employee.last_review_date %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>Last Review:</strong><br>
+                            {{ employee.last_review_date.strftime('%B %d, %Y') }}
+                        </div>
+                        {% if employee.next_review_date %}
+                            <div class="mb-2">
+                                <strong>Next Review:</strong><br>
+                                {{ employee.next_review_date.strftime('%B %d, %Y') }}
+                            </div>
+                        {% endif %}
+                        {% if employee.performance_rating %}
+                            <div>
+                                <strong>Current Rating:</strong><br>
+                                <span class="badge bg-success">{{ employee.performance_rating }}/5.0</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmTermination() {
+    if (confirm('Are you sure you want to terminate this employee? This action requires proper documentation and approval.')) {
+        // Redirect to termination form
+        window.location.href = '{{ url_for("hr.terminate_employee", id=employee.id) }}';
+    }
+}
+</script>
+{% endblock %}

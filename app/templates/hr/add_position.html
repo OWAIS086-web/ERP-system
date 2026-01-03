@@ -1,0 +1,294 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add Job Position{% endblock %}
+{% block page_subtitle %}Create a new job position{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('hr.positions') }}">Job Positions</a></li>
+                    <li class="breadcrumb-item active">Add Position</li>
+                </ol>
+            </nav>
+            <h2>Add New Job Position</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('hr.positions') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Positions
+            </a>
+        </div>
+    </div>
+
+    <!-- Add Position Form -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Position Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('hr.add_position') }}">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">Position Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="code" class="form-label">Position Code</label>
+                                <input type="text" class="form-control" id="code" name="code" 
+                                       placeholder="Auto-generated if empty">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="department_id" class="form-label">Department *</label>
+                                <select class="form-select" id="department_id" name="department_id" required>
+                                    <option value="">Select Department...</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.id }}" 
+                                                {% if request.args.get('department_id') == dept.id|string %}selected{% endif %}>
+                                            {{ dept.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="job_level" class="form-label">Job Level *</label>
+                                <select class="form-select" id="job_level" name="job_level" required>
+                                    <option value="">Select Level...</option>
+                                    <option value="entry">Entry Level</option>
+                                    <option value="junior">Junior</option>
+                                    <option value="senior">Senior</option>
+                                    <option value="lead">Lead</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="director">Director</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="employment_type" class="form-label">Employment Type *</label>
+                                <select class="form-select" id="employment_type" name="employment_type" required>
+                                    <option value="full_time" selected>Full Time</option>
+                                    <option value="part_time">Part Time</option>
+                                    <option value="contract">Contract</option>
+                                    <option value="intern">Intern</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">
+                                        Active Position
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">Job Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="4" 
+                                          placeholder="Describe the role, purpose, and key objectives..."></textarea>
+                            </div>
+                            
+                            <!-- Requirements -->
+                            <div class="col-md-12 mb-3">
+                                <label for="requirements" class="form-label">Requirements & Qualifications</label>
+                                <textarea class="form-control" id="requirements" name="requirements" rows="4" 
+                                          placeholder="List education, experience, skills, and certifications required..."></textarea>
+                            </div>
+                            
+                            <!-- Responsibilities -->
+                            <div class="col-md-12 mb-3">
+                                <label for="responsibilities" class="form-label">Key Responsibilities</label>
+                                <textarea class="form-control" id="responsibilities" name="responsibilities" rows="4" 
+                                          placeholder="List main duties and responsibilities..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Compensation Section -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Compensation Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="min_salary" class="form-label">Minimum Salary</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="min_salary" name="min_salary" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="max_salary" class="form-label">Maximum Salary</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="max_salary" name="max_salary" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="salary_currency" class="form-label">Currency</label>
+                                        <select class="form-select" id="salary_currency" name="salary_currency">
+                                            <option value="USD" selected>USD - US Dollar</option>
+                                            <option value="EUR">EUR - Euro</option>
+                                            <option value="GBP">GBP - British Pound</option>
+                                            <option value="CAD">CAD - Canadian Dollar</option>
+                                            <option value="AUD">AUD - Australian Dollar</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ url_for('hr.positions') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Position
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Position Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Tips</h6>
+                        <ul class="mb-0 small">
+                            <li>Position code will be auto-generated from title if not provided</li>
+                            <li>Use clear, descriptive titles for better organization</li>
+                            <li>Salary ranges help with budgeting and recruitment</li>
+                            <li>Detailed descriptions improve hiring quality</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-lightbulb"></i> Best Practices</h6>
+                        <ul class="mb-0 small">
+                            <li>Include specific skills and experience levels</li>
+                            <li>Define clear career progression paths</li>
+                            <li>Align with department objectives</li>
+                            <li>Regular review and updates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Level Guide -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Job Level Guide</h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="mb-2">
+                            <strong>Entry Level:</strong> 0-2 years experience
+                        </div>
+                        <div class="mb-2">
+                            <strong>Junior:</strong> 2-4 years experience
+                        </div>
+                        <div class="mb-2">
+                            <strong>Senior:</strong> 4-8 years experience
+                        </div>
+                        <div class="mb-2">
+                            <strong>Lead:</strong> 6+ years, team leadership
+                        </div>
+                        <div class="mb-2">
+                            <strong>Manager:</strong> People management role
+                        </div>
+                        <div class="mb-0">
+                            <strong>Director:</strong> Strategic leadership role
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate position code from title
+document.getElementById('title').addEventListener('input', function() {
+    const title = this.value;
+    const codeField = document.getElementById('code');
+    
+    if (!codeField.value && title) {
+        // Generate code from first 3 letters of each word
+        const words = title.split(' ');
+        const code = words.slice(0, 2).map(word => word.substring(0, 3).toUpperCase()).join('');
+        codeField.placeholder = `Suggested: ${code}`;
+    }
+});
+
+// Salary validation
+document.getElementById('max_salary').addEventListener('input', function() {
+    const minSalary = parseFloat(document.getElementById('min_salary').value) || 0;
+    const maxSalary = parseFloat(this.value) || 0;
+    
+    if (maxSalary > 0 && minSalary > 0 && maxSalary < minSalary) {
+        this.setCustomValidity('Maximum salary must be greater than minimum salary');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+document.getElementById('min_salary').addEventListener('input', function() {
+    const minSalary = parseFloat(this.value) || 0;
+    const maxSalary = parseFloat(document.getElementById('max_salary').value) || 0;
+    
+    if (maxSalary > 0 && minSalary > 0 && minSalary > maxSalary) {
+        this.setCustomValidity('Minimum salary must be less than maximum salary');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const department = document.getElementById('department_id').value;
+    const jobLevel = document.getElementById('job_level').value;
+    const employmentType = document.getElementById('employment_type').value;
+    
+    if (!title) {
+        e.preventDefault();
+        alert('Please enter a position title');
+        return;
+    }
+    
+    if (!department) {
+        e.preventDefault();
+        alert('Please select a department');
+        return;
+    }
+    
+    if (!jobLevel) {
+        e.preventDefault();
+        alert('Please select a job level');
+        return;
+    }
+    
+    if (!employmentType) {
+        e.preventDefault();
+        alert('Please select an employment type');
+        return;
+    }
+});
+</script>
+{% endblock %}

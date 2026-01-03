@@ -1,0 +1,509 @@
+{% extends "layout.html" %}
+
+{% block page_title %}{{ project.name }}{% endblock %}
+{% block page_subtitle %}{{ project.project_code }} - Project Overview{% endblock %}
+
+{% block page_content %}
+<!-- Project Header -->
+<div class="glass-card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-2">
+                    <h4 class="text-contrast mb-0 me-3">{{ project.name }}</h4>
+                    <span class="badge badge-status 
+                        {% if project.status == 'active' %}badge-active
+                        {% elif project.status == 'completed' %}badge-completed
+                        {% elif project.status == 'on_hold' %}badge-pending
+                        {% elif project.status == 'cancelled' %}badge-cancelled
+                        {% else %}badge-inactive{% endif %}">
+                        {{ project.status.replace('_', ' ').title() }}
+                    </span>
+                    <span class="priority-indicator priority-{{ project.priority }} ms-2"></span>
+                    <small class="text-contrast ms-1">{{ project.priority.title() }} Priority</small>
+                </div>
+                <p class="text-contrast-secondary mb-2">{{ project.description or 'No description provided' }}</p>
+                <div class="d-flex align-items-center text-muted small">
+                    <span class="me-3"><i class="fas fa-calendar"></i> {{ project.start_date.strftime('%b %d, %Y') }} - {{ project.end_date.strftime('%b %d, %Y') }}</span>
+                    <span class="me-3"><i class="fas fa-user"></i> {{ project.manager.full_name if project.manager else 'No manager assigned' }}</span>
+                    {% if project.client %}
+                    <span><i class="fas fa-building"></i> {{ project.client.company_name }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-cog"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">
+                            <i class="fas fa-edit"></i> Edit Project
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('projects.project_tasks', id=project.id) }}">
+                            <i class="fas fa-tasks"></i> Manage Tasks
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('projects.project_time_entries', id=project.id) }}">
+                            <i class="fas fa-clock"></i> Time Tracking
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#">
+                            <i class="fas fa-archive"></i> Archive Project
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon primary mb-3">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <h3 class="stat-number text-contrast">{{ "%.0f"|format(progress_percentage) }}%</h3>
+                <p class="stat-label">Progress</p>
+                <div class="progress-bar-container mt-2">
+                    <div class="progress-bar" style="width: {{ progress_percentage }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon success mb-3">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="stat-number text-contrast">{{ tasks|length }}</h3>
+                <p class="stat-label">Total Tasks</p>
+                <small class="text-muted">{{ tasks|selectattr('status', 'equalto', 'completed')|list|length }} completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon warning mb-3">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <h3 class="stat-number text-contrast">{{ milestones|length }}</h3>
+                <p class="stat-label">Milestones</p>
+                <small class="text-muted">{{ milestones|selectattr('status', 'equalto', 'completed')|list|length }} completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon info mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="stat-number text-contrast">{{ resources|length }}</h3>
+                <p class="stat-label">Team Members</p>
+                <small class="text-muted">Active resources</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Tabs -->
+<div class="glass-card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="projectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                    <i class="fas fa-chart-line"></i> Overview
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab">
+                    <i class="fas fa-tasks"></i> Tasks ({{ tasks|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="milestones-tab" data-bs-toggle="tab" data-bs-target="#milestones" type="button" role="tab">
+                    <i class="fas fa-flag"></i> Milestones ({{ milestones|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="team-tab" data-bs-toggle="tab" data-bs-target="#team" type="button" role="tab">
+                    <i class="fas fa-users"></i> Team ({{ resources|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="time-tab" data-bs-toggle="tab" data-bs-target="#time" type="button" role="tab">
+                    <i class="fas fa-clock"></i> Time Entries
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="projectTabsContent">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Recent Activity -->
+                        <h6 class="text-contrast mb-3">Recent Activity</h6>
+                        <div class="timeline">
+                            {% for entry in time_entries[:5] %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title text-contrast">{{ entry.description }}</h6>
+                                    <p class="timeline-text text-muted small">
+                                        {{ entry.hours }} hours logged by {{ entry.user.full_name if entry.user else 'Unknown' }}
+                                    </p>
+                                    <span class="timeline-date text-muted">{{ entry.date.strftime('%b %d, %Y') }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if not time_entries %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">No time entries recorded yet</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Project Details -->
+                        <h6 class="text-contrast mb-3">Project Details</h6>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Budget:</span>
+                                    <span class="text-contrast">${{ project.budget or 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Actual Cost:</span>
+                                    <span class="text-contrast">${{ project.actual_cost or 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Billable Amount:</span>
+                                    <span class="text-contrast">${{ project.billable_amount or 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Is Billable:</span>
+                                    <span class="badge {% if project.is_billable %}badge-active{% else %}badge-inactive{% endif %}">
+                                        {{ 'Yes' if project.is_billable else 'No' }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% if project.category %}
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Category:</span>
+                                    <span class="text-contrast">{{ project.category.name }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tasks Tab -->
+            <div class="tab-pane fade" id="tasks" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-contrast mb-0">Project Tasks</h6>
+                    <a href="{{ url_for('projects.project_tasks', id=project.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Task
+                    </a>
+                </div>
+                
+                {% if tasks %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Assignee</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks[:10] %}
+                            <tr>
+                                <td>
+                                    <div class="text-contrast">{{ task.name }}</div>
+                                    {% if task.description %}
+                                    <small class="text-muted">{{ task.description[:50] }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if task.assigned_to %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-2">
+                                            {{ task.assigned_to.full_name[0] if task.assigned_to.full_name else task.assigned_to.username[0] }}
+                                        </div>
+                                        <span class="text-contrast-secondary">{{ task.assigned_to.full_name or task.assigned_to.username }}</span>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="priority-indicator priority-{{ task.priority }}"></span>
+                                    {{ task.priority.title() }}
+                                </td>
+                                <td>
+                                    {% if task.due_date %}
+                                    <span class="text-contrast-secondary">{{ task.due_date.strftime('%b %d, %Y') }}</span>
+                                    {% else %}
+                                    <span class="text-muted">No due date</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-status 
+                                        {% if task.status == 'completed' %}badge-completed
+                                        {% elif task.status == 'in_progress' %}badge-active
+                                        {% elif task.status == 'blocked' %}badge-cancelled
+                                        {% else %}badge-pending{% endif %}">
+                                        {{ task.status.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-container" style="width: 60px;">
+                                        <div class="progress-bar" style="width: {{ task.progress_percentage or 0 }}%"></div>
+                                    </div>
+                                    <small class="text-muted ms-1">{{ task.progress_percentage or 0 }}%</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if tasks|length > 10 %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('projects.project_tasks', id=project.id) }}" class="btn btn-outline-primary">
+                        View All {{ tasks|length }} Tasks
+                    </a>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-tasks fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No tasks created yet</p>
+                    <a href="{{ url_for('projects.project_tasks', id=project.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Task
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Milestones Tab -->
+            <div class="tab-pane fade" id="milestones" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-contrast mb-0">Project Milestones</h6>
+                    <a href="{{ url_for('projects.project_milestones', id=project.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Milestone
+                    </a>
+                </div>
+                
+                {% if milestones %}
+                <div class="row">
+                    {% for milestone in milestones %}
+                    <div class="col-md-6 mb-3">
+                        <div class="glass-card milestone-card {% if milestone.status == 'completed' %}milestone-completed{% elif milestone.due_date < date.today() and milestone.status != 'completed' %}milestone-overdue{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="text-contrast mb-0">{{ milestone.name }}</h6>
+                                    <span class="badge badge-status 
+                                        {% if milestone.status == 'completed' %}badge-completed
+                                        {% elif milestone.due_date < date.today() %}badge-cancelled
+                                        {% else %}badge-pending{% endif %}">
+                                        {{ milestone.status.title() }}
+                                    </span>
+                                </div>
+                                {% if milestone.description %}
+                                <p class="text-contrast-secondary small mb-2">{{ milestone.description }}</p>
+                                {% endif %}
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span><i class="fas fa-calendar"></i> {{ milestone.due_date.strftime('%b %d, %Y') }}</span>
+                                    {% if milestone.completion_date %}
+                                    <span><i class="fas fa-check"></i> {{ milestone.completion_date.strftime('%b %d, %Y') }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-flag fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No milestones defined yet</p>
+                    <a href="{{ url_for('projects.project_milestones', id=project.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Milestone
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Team Tab -->
+            <div class="tab-pane fade" id="team" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-contrast mb-0">Team Members</h6>
+                    <a href="{{ url_for('projects.project_resources', id=project.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-user-plus"></i> Add Member
+                    </a>
+                </div>
+                
+                {% if resources %}
+                <div class="row">
+                    {% for resource in resources %}
+                    <div class="col-md-6 mb-3">
+                        <div class="glass-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="user-avatar me-3">
+                                        {{ resource.user.full_name[0] if resource.user.full_name else resource.user.username[0] }}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="text-contrast mb-0">{{ resource.user.full_name or resource.user.username }}</h6>
+                                        <small class="text-muted">{{ resource.role }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-contrast">${{ resource.hourly_rate or 0 }}/hr</div>
+                                        <small class="text-muted">{{ resource.allocation_percentage or 0 }}% allocated</small>
+                                    </div>
+                                </div>
+                                <div class="resource-allocation">
+                                    <div class="allocation-bar">
+                                        <div class="allocation-fill {% if resource.allocation_percentage > 100 %}allocation-overbooked{% endif %}" 
+                                             style="width: {{ min(resource.allocation_percentage or 0, 100) }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ resource.allocation_percentage or 0 }}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No team members assigned yet</p>
+                    <a href="{{ url_for('projects.project_resources', id=project.id) }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add Team Members
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Time Entries Tab -->
+            <div class="tab-pane fade" id="time" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-contrast mb-0">Recent Time Entries</h6>
+                    <a href="{{ url_for('projects.project_time_entries', id=project.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Log Time
+                    </a>
+                </div>
+                
+                {% if time_entries %}
+                <div class="row">
+                    {% for entry in time_entries %}
+                    <div class="col-md-6 mb-3">
+                        <div class="glass-card time-entry-card {% if entry.is_billable %}billable{% else %}non-billable{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="text-contrast mb-1">{{ entry.description }}</h6>
+                                        <small class="text-muted">{{ entry.user.full_name if entry.user else 'Unknown' }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-contrast">{{ entry.hours }}h</div>
+                                        <span class="badge {% if entry.is_billable %}badge-active{% else %}badge-inactive{% endif %}">
+                                            {{ 'Billable' if entry.is_billable else 'Non-billable' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span><i class="fas fa-calendar"></i> {{ entry.date.strftime('%b %d, %Y') }}</span>
+                                    {% if entry.task %}
+                                    <span><i class="fas fa-tasks"></i> {{ entry.task.name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('projects.project_time_entries', id=project.id) }}" class="btn btn-outline-primary">
+                        View All Time Entries
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No time entries recorded yet</p>
+                    <a href="{{ url_for('projects.project_time_entries', id=project.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Log First Time Entry
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -31px;
+    top: 15px;
+    width: 2px;
+    height: calc(100% + 10px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.timeline-title {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.timeline-text {
+    margin-bottom: 5px;
+}
+
+.timeline-date {
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}

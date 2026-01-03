@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block description %}Professional ERP System for Business Management{% endblock %}">
+    <meta name="author" content="ERP System">
+    <title>{% block title %}{% block page_title %}Dashboard{% endblock %} - ERP System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/components.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animations.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Theme Configuration -->
+    <script>
+        // Theme detection and setting
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const actualTheme = localStorage.getItem('actualTheme') || theme;
+            
+            if (theme === 'auto') {
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-bs-theme', systemTheme);
+                document.documentElement.setAttribute('data-theme', systemTheme);
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', actualTheme);
+                document.documentElement.setAttribute('data-theme', actualTheme);
+            }
+            
+            // Apply color scheme
+            const colorScheme = localStorage.getItem('colorScheme') || 'default';
+            document.documentElement.classList.add(`scheme-${colorScheme}`);
+            
+            // Apply display options
+            const compactMode = localStorage.getItem('compactMode') === 'true';
+            const animations = localStorage.getItem('animations') !== 'false';
+            const highContrast = localStorage.getItem('highContrast') === 'true';
+            
+            if (compactMode) document.body.classList.add('compact-mode');
+            if (!animations) document.body.classList.add('no-animations');
+            if (highContrast) document.body.classList.add('high-contrast');
+            
+            // Apply font settings
+            const fontSize = localStorage.getItem('fontSize') || 'medium';
+            const fontFamily = localStorage.getItem('fontFamily') || 'inter';
+            
+            document.documentElement.setAttribute('data-font-size', fontSize);
+            document.documentElement.setAttribute('data-font-family', fontFamily);
+            
+            // Apply color scheme CSS variables
+            const colorSchemes = {
+                default: { primary: '#3b82f6', secondary: '#6366f1', accent: '#8b5cf6' },
+                ocean: { primary: '#0ea5e9', secondary: '#0284c7', accent: '#0369a1' },
+                forest: { primary: '#059669', secondary: '#047857', accent: '#065f46' },
+                sunset: { primary: '#f97316', secondary: '#ea580c', accent: '#dc2626' },
+                purple: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#6d28d9' },
+                emerald: { primary: '#10b981', secondary: '#059669', accent: '#047857' }
+            };
+            
+            if (colorSchemes[colorScheme]) {
+                const colors = colorSchemes[colorScheme];
+                const root = document.documentElement;
+                root.style.setProperty('--primary-color', colors.primary);
+                root.style.setProperty('--secondary-color', colors.secondary);
+                root.style.setProperty('--accent-color', colors.accent);
+            }
+        })();
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- Loading Spinner -->
+    <div id="globalLoader" class="global-loader">
+        <div class="loader-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Background Elements -->
+    <div class="background-elements">
+        <div class="bg-gradient-1"></div>
+        <div class="bg-gradient-2"></div>
+        <div class="bg-pattern"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="app-wrapper">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+    
+    <!-- Scroll to Top Button -->
+    <button type="button" class="btn btn-primary scroll-to-top" id="scrollToTop" title="Scroll to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shortcutsModalLabel">
+                        <i class="fas fa-keyboard me-2"></i>Keyboard Shortcuts
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Navigation</h6>
+                            <ul class="list-unstyled">
+                                <li><kbd>Ctrl</kbd> + <kbd>/</kbd> - Toggle sidebar</li>
+                                <li><kbd>Ctrl</kbd> + <kbd>K</kbd> - Global search</li>
+                                <li><kbd>Ctrl</kbd> + <kbd>H</kbd> - Go to dashboard</li>
+                                <li><kbd>Esc</kbd> - Close modals</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Actions</h6>
+                            <ul class="list-unstyled">
+                                <li><kbd>Ctrl</kbd> + <kbd>N</kbd> - New record</li>
+                                <li><kbd>Ctrl</kbd> + <kbd>S</kbd> - Save</li>
+                                <li><kbd>Ctrl</kbd> + <kbd>E</kbd> - Edit</li>
+                                <li><kbd>?</kbd> - Show shortcuts</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/shortcuts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Global JavaScript Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Initialize popovers
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+            
+            // Hide loader
+            setTimeout(function() {
+                const loader = document.getElementById('globalLoader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 300);
+                }
+            }, 500);
+            
+            // Initialize app
+            if (typeof window.initializeApp === 'function') {
+                window.initializeApp();
+            }
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            // You can add error reporting here
+        });
+        
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log('Page load time:', loadTime + 'ms');
+            }
+        });
+    </script>
+</body>
+</html>

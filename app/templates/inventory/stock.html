@@ -1,0 +1,214 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Stock Management{% endblock %}
+{% block page_subtitle %}Monitor and manage inventory levels{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Inventory</span>
+<span class="breadcrumb-item active">Stock Management</span>
+{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#stockAdjustmentModal">
+    <i class="fas fa-plus-minus"></i> Stock Adjustment
+</button>
+<button class="btn btn-outline-primary">
+    <i class="fas fa-download"></i> Export Report
+</button>
+{% endblock %}
+
+{% block page_content %}
+<!-- Stock Alerts -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon danger mb-3">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="stat-number">15</h3>
+                <p class="stat-label">Out of Stock</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon warning mb-3">
+                    <i class="fas fa-battery-quarter"></i>
+                </div>
+                <h3 class="stat-number">32</h3>
+                <p class="stat-label">Low Stock</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon success mb-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="stat-number">198</h3>
+                <p class="stat-label">In Stock</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Levels Table -->
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Stock Levels</h5>
+        <div class="card-actions">
+            <select class="form-select form-select-sm">
+                <option>All Products</option>
+                <option>Low Stock Only</option>
+                <option>Out of Stock Only</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Current Stock</th>
+                        <th>Min Level</th>
+                        <th>Max Level</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">Premium Widget Pro</div>
+                            <small class="text-muted">Electronics</small>
+                        </td>
+                        <td>PWP-001</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">45</span>
+                                <div class="progress" style="width: 60px; height: 6px;">
+                                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>10</td>
+                        <td>100</td>
+                        <td><span class="status-badge active">In Stock</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" title="Adjust Stock">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">Standard Widget</div>
+                            <small class="text-muted">Electronics</small>
+                        </td>
+                        <td>SW-002</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 text-warning">8</span>
+                                <div class="progress" style="width: 60px; height: 6px;">
+                                    <div class="progress-bar bg-warning" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>10</td>
+                        <td>50</td>
+                        <td><span class="status-badge warning">Low Stock</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning" title="Restock">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">Mini Widget</div>
+                            <small class="text-muted">Electronics</small>
+                        </td>
+                        <td>MW-003</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 text-danger">0</span>
+                                <div class="progress" style="width: 60px; height: 6px;">
+                                    <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>5</td>
+                        <td>30</td>
+                        <td><span class="status-badge danger">Out of Stock</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" title="Urgent Restock">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Adjustment Modal -->
+<div class="modal fade" id="stockAdjustmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Stock Adjustment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="adjustProduct" class="form-label">Product</label>
+                        <select class="form-select" id="adjustProduct" required>
+                            <option value="">Select Product</option>
+                            <option value="1">Premium Widget Pro (PWP-001)</option>
+                            <option value="2">Standard Widget (SW-002)</option>
+                            <option value="3">Mini Widget (MW-003)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjustmentType" class="form-label">Adjustment Type</label>
+                        <select class="form-select" id="adjustmentType" required>
+                            <option value="increase">Increase Stock</option>
+                            <option value="decrease">Decrease Stock</option>
+                            <option value="set">Set Stock Level</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjustmentQuantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="adjustmentQuantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjustmentReason" class="form-label">Reason</label>
+                        <select class="form-select" id="adjustmentReason">
+                            <option value="received">Stock Received</option>
+                            <option value="damaged">Damaged Goods</option>
+                            <option value="theft">Theft/Loss</option>
+                            <option value="correction">Inventory Correction</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjustmentNotes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="adjustmentNotes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Apply Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

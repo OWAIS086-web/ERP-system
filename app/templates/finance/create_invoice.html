@@ -1,0 +1,272 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Create Invoice{% endblock %}
+{% block page_subtitle %}Generate a new customer invoice{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Finance</span>
+<span class="breadcrumb-item"><a href="{{ url_for('finance.invoices') }}">Invoices</a></span>
+<span class="breadcrumb-item active">Create Invoice</span>
+{% endblock %}
+
+{% block page_content %}
+<form method="POST" class="needs-validation" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Invoice Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customer_id" class="form-label">Customer *</label>
+                                <select class="form-select" id="customer_id" name="customer_id" required>
+                                    <option value="">Select Customer</option>
+                                    <option value="1">John Smith - Acme Corporation</option>
+                                    <option value="2">Sarah Johnson - Tech Solutions Inc</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="invoice_date" class="form-label">Invoice Date *</label>
+                                <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="due_date" class="form-label">Due Date *</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="payment_terms" class="form-label">Payment Terms</label>
+                                <select class="form-select" id="payment_terms" name="payment_terms">
+                                    <option value="net_30">Net 30</option>
+                                    <option value="net_15">Net 15</option>
+                                    <option value="due_on_receipt">Due on Receipt</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invoice Items -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Invoice Items</h5>
+                        <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="invoiceItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoiceItemsBody">
+                                <tr class="invoice-item-row">
+                                    <td>
+                                        <input type="text" class="form-control" name="items[0][description]" placeholder="Item description" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control quantity-input" name="items[0][quantity]" min="1" value="1" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control rate-input" name="items[0][rate]" step="0.01" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control amount-input" name="items[0][amount]" step="0.01" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Invoice Summary -->
+            <div class="glass-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Invoice Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="invoice-summary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (8.5%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount:</span>
+                            <span id="discount">$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="form-group">
+                            <label for="discount_amount" class="form-label">Discount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="discount_amount" name="discount_amount" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Options -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h5 class="card-title">Options</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="send_email" name="send_email" checked>
+                        <label class="form-check-label" for="send_email">
+                            Send invoice via email
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="glass-card mt-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('finance.invoices') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-save"></i> Save as Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Create Invoice
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let itemIndex = 1;
+    
+    // Add new item row
+    $('#addItemBtn').click(function() {
+        const newRow = `
+            <tr class="invoice-item-row">
+                <td>
+                    <input type="text" class="form-control" name="items[${itemIndex}][description]" placeholder="Item description" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control quantity-input" name="items[${itemIndex}][quantity]" min="1" value="1" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control rate-input" name="items[${itemIndex}][rate]" step="0.01" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control amount-input" name="items[${itemIndex}][amount]" step="0.01" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        $('#invoiceItemsBody').append(newRow);
+        itemIndex++;
+    });
+    
+    // Remove item row
+    $(document).on('click', '.remove-item-btn', function() {
+        if ($('.invoice-item-row').length > 1) {
+            $(this).closest('tr').remove();
+            calculateTotal();
+        }
+    });
+    
+    // Calculate amounts
+    $(document).on('input', '.quantity-input, .rate-input', function() {
+        const row = $(this).closest('tr');
+        const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+        const rate = parseFloat(row.find('.rate-input').val()) || 0;
+        const amount = quantity * rate;
+        row.find('.amount-input').val(amount.toFixed(2));
+        calculateTotal();
+    });
+    
+    // Calculate total
+    function calculateTotal() {
+        let subtotal = 0;
+        $('.amount-input').each(function() {
+            subtotal += parseFloat($(this).val()) || 0;
+        });
+        
+        const discountAmount = parseFloat($('#discount_amount').val()) || 0;
+        const taxRate = 0.085;
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax - discountAmount;
+        
+        $('#subtotal').text('$' + subtotal.toFixed(2));
+        $('#tax').text('$' + tax.toFixed(2));
+        $('#discount').text('$' + discountAmount.toFixed(2));
+        $('#total').text('$' + total.toFixed(2));
+    }
+    
+    $('#discount_amount').on('input', calculateTotal);
+    
+    // Set today's date as default
+    $('#invoice_date').val(new Date().toISOString().split('T')[0]);
+    
+    // Set due date 30 days from today
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+    $('#due_date').val(dueDate.toISOString().split('T')[0]);
+});
+</script>
+{% endblock %}

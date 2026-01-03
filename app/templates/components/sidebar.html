@@ -1,0 +1,224 @@
+<div class="sidebar glass-card sidebar-enhanced">
+    <div class="sidebar-header">
+        <a href="{{ url_for('main.dashboard') }}" class="logo">
+            <i class="fas fa-building"></i>
+            <span>ERP System</span>
+        </a>
+        <button class="sidebar-close d-lg-none" id="sidebarClose" aria-label="Close Sidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' }}" title="Dashboard (Ctrl+1)">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <!-- Sales Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'sales' in request.endpoint }}" 
+                   data-submenu="salesMenu"
+                   aria-expanded="{{ 'true' if 'sales' in request.endpoint else 'false' }}"
+                   title="Sales Module (Ctrl+2)">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Sales</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'sales' in request.endpoint }}" id="salesMenu">
+                    <li><a href="{{ url_for('sales.customers') }}" class="submenu-link {{ 'active' if request.endpoint == 'sales.customers' }}">
+                        <i class="fas fa-users"></i> Customers
+                    </a></li>
+                    <li><a href="{{ url_for('sales.add_customer') }}" class="submenu-link {{ 'active' if request.endpoint == 'sales.add_customer' }}">
+                        <i class="fas fa-user-plus"></i> Add Customer
+                    </a></li>
+                    <li><a href="{{ url_for('sales.orders') }}" class="submenu-link {{ 'active' if request.endpoint == 'sales.orders' }}">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a></li>
+                    <li><a href="{{ url_for('sales.add_order') }}" class="submenu-link {{ 'active' if request.endpoint == 'sales.add_order' }}">
+                        <i class="fas fa-plus"></i> New Order
+                    </a></li>
+                    <li><a href="{{ url_for('sales.quotes') }}" class="submenu-link {{ 'active' if request.endpoint == 'sales.quotes' }}">
+                        <i class="fas fa-file-alt"></i> Quotes
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Inventory Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'inventory' in request.endpoint }}" 
+                   data-submenu="inventoryMenu"
+                   aria-expanded="{{ 'true' if 'inventory' in request.endpoint else 'false' }}"
+                   title="Inventory Module (Ctrl+3)">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'inventory' in request.endpoint }}" id="inventoryMenu">
+                    <li><a href="{{ url_for('inventory.products') }}" class="submenu-link {{ 'active' if request.endpoint == 'inventory.products' }}">
+                        <i class="fas fa-box"></i> Products
+                    </a></li>
+                    <li><a href="{{ url_for('inventory.add_product') }}" class="submenu-link {{ 'active' if request.endpoint == 'inventory.add_product' }}">
+                        <i class="fas fa-plus"></i> Add Product
+                    </a></li>
+                    <li><a href="{{ url_for('inventory.categories') }}" class="submenu-link {{ 'active' if request.endpoint == 'inventory.categories' }}">
+                        <i class="fas fa-tags"></i> Categories
+                    </a></li>
+                    <li><a href="{{ url_for('inventory.stock') }}" class="submenu-link {{ 'active' if request.endpoint == 'inventory.stock' }}">
+                        <i class="fas fa-warehouse"></i> Stock Management
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Finance Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'finance' in request.endpoint }}" 
+                   data-submenu="financeMenu"
+                   aria-expanded="{{ 'true' if 'finance' in request.endpoint else 'false' }}"
+                   title="Finance Module (Ctrl+4)">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Finance</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'finance' in request.endpoint }}" id="financeMenu">
+                    <li><a href="{{ url_for('finance.invoices') }}" class="submenu-link {{ 'active' if request.endpoint == 'finance.invoices' }}">
+                        <i class="fas fa-file-invoice"></i> Invoices
+                    </a></li>
+                    <li><a href="{{ url_for('finance.create_invoice') }}" class="submenu-link {{ 'active' if request.endpoint == 'finance.create_invoice' }}">
+                        <i class="fas fa-plus"></i> Create Invoice
+                    </a></li>
+                    <li><a href="{{ url_for('finance.payments') }}" class="submenu-link {{ 'active' if request.endpoint == 'finance.payments' }}">
+                        <i class="fas fa-credit-card"></i> Payments
+                    </a></li>
+                    <li><a href="{{ url_for('finance.expenses') }}" class="submenu-link {{ 'active' if request.endpoint == 'finance.expenses' }}">
+                        <i class="fas fa-receipt"></i> Expenses
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Human Resources Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'hr' in request.endpoint }}" 
+                   data-submenu="hrMenu"
+                   aria-expanded="{{ 'true' if 'hr' in request.endpoint else 'false' }}"
+                   title="HR Module (Ctrl+5)">
+                    <i class="fas fa-users"></i>
+                    <span>Human Resources</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'hr' in request.endpoint }}" id="hrMenu">
+                    <li><a href="{{ url_for('hr.employees') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.employees' }}">
+                        <i class="fas fa-user-tie"></i> Employees
+                    </a></li>
+                    <li><a href="{{ url_for('hr.add_employee') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.add_employee' }}">
+                        <i class="fas fa-user-plus"></i> Add Employee
+                    </a></li>
+                    <li><a href="{{ url_for('hr.departments') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.departments' }}">
+                        <i class="fas fa-building"></i> Departments
+                    </a></li>
+                    <li><a href="{{ url_for('hr.positions') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.positions' }}">
+                        <i class="fas fa-briefcase"></i> Job Positions
+                    </a></li>
+                    <li><a href="{{ url_for('hr.leave_requests') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.leave_requests' }}">
+                        <i class="fas fa-calendar-times"></i> Leave Requests
+                    </a></li>
+                    <li><a href="{{ url_for('hr.attendance') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.attendance' }}">
+                        <i class="fas fa-clock"></i> Attendance
+                    </a></li>
+                    <li><a href="{{ url_for('hr.payroll') }}" class="submenu-link {{ 'active' if request.endpoint == 'hr.payroll' }}">
+                        <i class="fas fa-money-check-alt"></i> Payroll
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Procurement Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'procurement' in request.endpoint }}" 
+                   data-submenu="procurementMenu"
+                   aria-expanded="{{ 'true' if 'procurement' in request.endpoint else 'false' }}"
+                   title="Procurement Module (Ctrl+6)">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Procurement</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'procurement' in request.endpoint }}" id="procurementMenu">
+                    <li><a href="{{ url_for('procurement.suppliers') }}" class="submenu-link {{ 'active' if request.endpoint == 'procurement.suppliers' }}">
+                        <i class="fas fa-truck"></i> Suppliers
+                    </a></li>
+                    <li><a href="{{ url_for('procurement.add_supplier') }}" class="submenu-link {{ 'active' if request.endpoint == 'procurement.add_supplier' }}">
+                        <i class="fas fa-plus"></i> Add Supplier
+                    </a></li>
+                    <li><a href="{{ url_for('procurement.purchase_orders') }}" class="submenu-link {{ 'active' if request.endpoint == 'procurement.purchase_orders' }}">
+                        <i class="fas fa-file-contract"></i> Purchase Orders
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Projects Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'projects' in request.endpoint }}" 
+                   data-submenu="projectsMenu"
+                   aria-expanded="{{ 'true' if 'projects' in request.endpoint else 'false' }}"
+                   title="Projects Module (Ctrl+7)">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Projects</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'projects' in request.endpoint }}" id="projectsMenu">
+                    <li><a href="{{ url_for('projects.index') }}" class="submenu-link {{ 'active' if request.endpoint == 'projects.index' }}">
+                        <i class="fas fa-list"></i> All Projects
+                    </a></li>
+                    <li><a href="{{ url_for('projects.create_project') }}" class="submenu-link {{ 'active' if request.endpoint == 'projects.create_project' }}">
+                        <i class="fas fa-plus"></i> New Project
+                    </a></li>
+                    <li><a href="{{ url_for('projects.categories') }}" class="submenu-link {{ 'active' if request.endpoint == 'projects.categories' }}">
+                        <i class="fas fa-folder"></i> Categories
+                    </a></li>
+                </ul>
+            </li>
+            
+            <!-- Reports Module -->
+            <li class="nav-item">
+                <a href="#" class="nav-link has-submenu {{ 'active' if 'reports' in request.endpoint }}" 
+                   data-submenu="reportsMenu"
+                   aria-expanded="{{ 'true' if 'reports' in request.endpoint else 'false' }}"
+                   title="Reports Module (Ctrl+8)">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <ul class="submenu {{ 'show' if 'reports' in request.endpoint }}" id="reportsMenu">
+                    <li><a href="{{ url_for('reports.index') }}" class="submenu-link {{ 'active' if request.endpoint == 'reports.index' }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a></li>
+                    <li><a href="{{ url_for('reports.sales_summary') }}" class="submenu-link {{ 'active' if request.endpoint == 'reports.sales_summary' }}">
+                        <i class="fas fa-chart-line"></i> Sales Summary
+                    </a></li>
+                    <li><a href="{{ url_for('reports.inventory_report') }}" class="submenu-link {{ 'active' if request.endpoint == 'reports.inventory_report' }}">
+                        <i class="fas fa-boxes"></i> Inventory Report
+                    </a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                {% if current_user.is_authenticated and current_user.avatar %}
+                    <img src="{{ current_user.avatar }}" alt="User Avatar" class="rounded-circle">
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="user-details">
+                <span class="user-name">{{ current_user.full_name if current_user.is_authenticated else 'Guest' }}</span>
+                <span class="user-role">{{ current_user.role.title() if current_user.is_authenticated else '' }}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,437 @@
+{% extends "layout.html" %}
+
+{% block page_title %}{{ supplier.name }}{% endblock %}
+{% block page_subtitle %}Supplier Details{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('procurement.suppliers') }}">Suppliers</a></li>
+                    <li class="breadcrumb-item active">{{ supplier.name }}</li>
+                </ol>
+            </nav>
+            <h2>{{ supplier.name }}
+                <span class="badge {% if supplier.is_active %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                    {% if supplier.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </h2>
+            <p class="text-muted">Supplier Code: {{ supplier.supplier_code }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('procurement.edit_supplier', id=supplier.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Supplier
+                </a>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" 
+                        data-bs-toggle="dropdown">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('procurement.add_purchase_order') }}?supplier_id={{ supplier.id }}">
+                        <i class="fas fa-plus"></i> New Purchase Order
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('procurement.evaluate_supplier', id=supplier.id) }}">
+                        <i class="fas fa-star"></i> Evaluate Supplier
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('procurement.suppliers') }}">
+                        <i class="fas fa-list"></i> All Suppliers
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteSupplier({{ supplier.id }})">
+                        <i class="fas fa-trash"></i> Delete Supplier
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">${{ "{:,.2f}".format(supplier.total_purchases or 0) }}</h3>
+                    <p class="text-muted mb-0">Total Purchases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ supplier.purchase_orders|length }}</h3>
+                    <p class="text-muted mb-0">Purchase Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ supplier.average_rating or 0 }}/5</h3>
+                    <p class="text-muted mb-0">Average Rating</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ supplier.payment_terms or 'Net 30' }}</h3>
+                    <p class="text-muted mb-0">Payment Terms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Supplier Information -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Supplier Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-muted">Supplier Code:</td>
+                            <td><strong>{{ supplier.supplier_code }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Category:</td>
+                            <td>
+                                {% if supplier.category %}
+                                    <span class="badge bg-info">{{ supplier.category.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">No category</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Type:</td>
+                            <td><span class="badge bg-secondary">{{ supplier.supplier_type|title }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Credit Limit:</td>
+                            <td>${{ "{:,.2f}".format(supplier.credit_limit or 0) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Payment Terms:</td>
+                            <td>{{ supplier.payment_terms or 'Net 30' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tax ID:</td>
+                            <td>{{ supplier.tax_id or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Status:</td>
+                            <td>
+                                <span class="badge {% if supplier.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if supplier.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Added:</td>
+                            <td>{{ supplier.created_at.strftime('%b %d, %Y') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    {% if supplier.email %}
+                        <div class="mb-2">
+                            <i class="fas fa-envelope text-muted me-2"></i>
+                            <a href="mailto:{{ supplier.email }}">{{ supplier.email }}</a>
+                        </div>
+                    {% endif %}
+                    {% if supplier.phone %}
+                        <div class="mb-2">
+                            <i class="fas fa-phone text-muted me-2"></i>
+                            <a href="tel:{{ supplier.phone }}">{{ supplier.phone }}</a>
+                        </div>
+                    {% endif %}
+                    {% if supplier.website %}
+                        <div class="mb-2">
+                            <i class="fas fa-globe text-muted me-2"></i>
+                            <a href="{{ supplier.website }}" target="_blank">{{ supplier.website }}</a>
+                        </div>
+                    {% endif %}
+                    {% if supplier.address %}
+                        <div class="mb-2">
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            <span>{{ supplier.address }}</span>
+                            {% if supplier.city or supplier.state or supplier.postal_code %}
+                                <br><small class="text-muted ms-3">
+                                    {{ supplier.city }}{% if supplier.city and supplier.state %}, {% endif %}{{ supplier.state }} {{ supplier.postal_code }}
+                                    {% if supplier.country %}<br>{{ supplier.country }}{% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Primary Contact -->
+            {% if supplier.contact_person %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Primary Contact</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                            {{ supplier.contact_person[0] }}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ supplier.contact_person }}</h6>
+                            {% if supplier.contact_email %}
+                                <small class="text-muted">{{ supplier.contact_email }}</small><br>
+                            {% endif %}
+                            {% if supplier.contact_phone %}
+                                <small class="text-muted">{{ supplier.contact_phone }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Performance Rating -->
+            {% if supplier.evaluations %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Performance Rating</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h3 class="text-primary">{{ supplier.average_rating or 0 }}/5</h3>
+                        <div class="rating-stars">
+                            {% for i in range(1, 6) %}
+                                <i class="fas fa-star {% if i <= (supplier.average_rating or 0) %}text-warning{% else %}text-muted{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Based on {{ supplier.evaluations|length }} evaluations</small>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h6 class="text-success">{{ supplier.quality_rating or 0 }}</h6>
+                            <small class="text-muted">Quality</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-info">{{ supplier.delivery_rating or 0 }}</h6>
+                            <small class="text-muted">Delivery</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-warning">{{ supplier.service_rating or 0 }}</h6>
+                            <small class="text-muted">Service</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Purchase Orders and Transactions -->
+        <div class="col-md-8">
+            <!-- Recent Purchase Orders -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Purchase Orders</h5>
+                    <a href="{{ url_for('procurement.add_purchase_order') }}?supplier_id={{ supplier.id }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> New Purchase Order
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if supplier.purchase_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>PO Number</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for po in supplier.purchase_orders[:10] %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('procurement.purchase_order_detail', id=po.id) }}">
+                                                    {{ po.po_number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ po.order_date.strftime('%b %d, %Y') }}</td>
+                                            <td>${{ "{:,.2f}".format(po.total_amount) }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if po.status == 'completed' %}bg-success
+                                                    {% elif po.status == 'pending' %}bg-warning
+                                                    {% elif po.status == 'cancelled' %}bg-danger
+                                                    {% else %}bg-info{% endif %}">
+                                                    {{ po.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('procurement.purchase_order_detail', id=po.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if supplier.purchase_orders|length > 10 %}
+                            <div class="text-center">
+                                <a href="{{ url_for('procurement.purchase_orders') }}?supplier={{ supplier.id }}" class="btn btn-outline-primary">
+                                    View All Purchase Orders ({{ supplier.purchase_orders|length }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No purchase orders yet</h6>
+                            <p class="text-muted">No purchase orders have been created for this supplier.</p>
+                            <a href="{{ url_for('procurement.add_purchase_order') }}?supplier_id={{ supplier.id }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create First Purchase Order
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Supplier Evaluations -->
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">Recent Evaluations</h6>
+                    <a href="{{ url_for('procurement.evaluate_supplier', id=supplier.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-star"></i> New Evaluation
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if supplier.evaluations %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Overall</th>
+                                        <th>Quality</th>
+                                        <th>Delivery</th>
+                                        <th>Service</th>
+                                        <th>Evaluator</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for evaluation in supplier.evaluations[:5] %}
+                                        <tr>
+                                            <td>{{ evaluation.evaluation_date.strftime('%b %d, %Y') }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ evaluation.overall_rating }}/5</span>
+                                            </td>
+                                            <td>{{ evaluation.quality_rating }}/5</td>
+                                            <td>{{ evaluation.delivery_rating }}/5</td>
+                                            <td>{{ evaluation.service_rating }}/5</td>
+                                            <td>{{ evaluation.evaluator.full_name if evaluation.evaluator else 'System' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No evaluations for this supplier.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Products/Services -->
+            {% if supplier.products %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Products & Services</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for product in supplier.products[:6] %}
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-box text-muted me-2"></i>
+                                    <small>{{ product.name }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if supplier.products|length > 6 %}
+                        <small class="text-muted">And {{ supplier.products|length - 6 }} more products...</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Notes -->
+            {% if supplier.notes %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Notes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ supplier.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteSupplier(supplierId) {
+    if (confirm('Are you sure you want to delete this supplier? This action cannot be undone and will affect all related purchase orders.')) {
+        fetch(`/procurement/suppliers/${supplierId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = "{{ url_for('procurement.suppliers') }}";
+            } else {
+                alert('Error deleting supplier: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting supplier');
+        });
+    }
+}
+</script>
+
+<style>
+.avatar-md {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.rating-stars {
+    font-size: 1.2em;
+}
+</style>
+{% endblock %}

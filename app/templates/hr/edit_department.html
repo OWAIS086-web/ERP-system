@@ -1,0 +1,281 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Edit {{ department.name }}{% endblock %}
+{% block page_subtitle %}Update department information{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('hr.departments') }}">Departments</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('hr.department_detail', id=department.id) }}">{{ department.name }}</a></li>
+                    <li class="breadcrumb-item active">Edit</li>
+                </ol>
+            </nav>
+            <h2>Edit Department: {{ department.name }}</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('hr.department_detail', id=department.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Department
+            </a>
+        </div>
+    </div>
+
+    <!-- Edit Department Form -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Department Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('hr.edit_department', id=department.id) }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Department Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ department.name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="code" class="form-label">Department Code *</label>
+                                <input type="text" class="form-control" id="code" name="code" 
+                                       value="{{ department.code }}" required>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3">{{ department.description or '' }}</textarea>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="manager_id" class="form-label">Department Manager</label>
+                                <select class="form-select" id="manager_id" name="manager_id">
+                                    <option value="">Select Manager...</option>
+                                    {% for employee in employees %}
+                                        <option value="{{ employee.id }}" 
+                                                {% if department.manager_id == employee.id %}selected{% endif %}>
+                                            {{ employee.full_name }} ({{ employee.employee_id }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="parent_department_id" class="form-label">Parent Department</label>
+                                <select class="form-select" id="parent_department_id" name="parent_department_id">
+                                    <option value="">No Parent (Top Level)</option>
+                                    {% for dept in departments %}
+                                        {% if dept.id != department.id %}
+                                            <option value="{{ dept.id }}" 
+                                                    {% if department.parent_department_id == dept.id %}selected{% endif %}>
+                                                {{ dept.name }} ({{ dept.code }})
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="budget" class="form-label">Annual Budget</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="budget" name="budget" 
+                                           step="0.01" min="0" value="{{ department.budget or '' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="cost_center" class="form-label">Cost Center</label>
+                                <input type="text" class="form-control" id="cost_center" name="cost_center" 
+                                       value="{{ department.cost_center or '' }}">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                           {% if department.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        Active Department
+                                    </label>
+                                </div>
+                                {% if not department.is_active %}
+                                    <small class="text-warning">
+                                        <i class="fas fa-exclamation-triangle"></i> 
+                                        This department is currently inactive
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('hr.department_detail', id=department.id) }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Department
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Department Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Current Department Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ department.employee_count }}</h4>
+                            <small class="text-muted">Employees</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info">{{ department.positions|length }}</h4>
+                            <small class="text-muted">Positions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Update Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Important Notes</h6>
+                        <ul class="mb-0 small">
+                            <li>Changing the department code may affect reporting</li>
+                            <li>Deactivating will hide from employee assignment</li>
+                            <li>Manager must be an active employee</li>
+                            <li>Cannot set self as parent department</li>
+                        </ul>
+                    </div>
+                    
+                    {% if department.employees %}
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Impact</h6>
+                            <p class="mb-0 small">
+                                This department has {{ department.employee_count }} active employees. 
+                                Changes may affect their records and reporting.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Department History</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-sm">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">Created</small>
+                                <br><small>{{ department.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        {% if department.updated_at != department.created_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">Last Updated</small>
+                                    <br><small>{{ department.updated_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const code = document.getElementById('code').value.trim();
+    
+    if (!name) {
+        e.preventDefault();
+        alert('Please enter a department name');
+        return;
+    }
+    
+    if (!code) {
+        e.preventDefault();
+        alert('Please enter a department code');
+        return;
+    }
+    
+    if (name.length < 2) {
+        e.preventDefault();
+        alert('Department name must be at least 2 characters long');
+        return;
+    }
+    
+    if (code.length < 2) {
+        e.preventDefault();
+        alert('Department code must be at least 2 characters long');
+        return;
+    }
+});
+
+// Prevent circular parent relationship
+document.getElementById('parent_department_id').addEventListener('change', function() {
+    const selectedParentId = this.value;
+    const currentDeptId = {{ department.id }};
+    
+    if (selectedParentId == currentDeptId) {
+        alert('A department cannot be its own parent');
+        this.value = '';
+    }
+});
+</script>
+
+<style>
+.timeline-sm {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline-sm::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -16px;
+    top: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline-content {
+    padding-left: 10px;
+}
+</style>
+{% endblock %}

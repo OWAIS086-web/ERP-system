@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Payroll{% endblock %}
+{% block page_subtitle %}Manage employee payroll and compensation{% endblock %}
+
+{% block page_content %}
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Payroll Overview</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h3 class="currency">125,000</h3>
+                    <p>Monthly Payroll</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h3>45</h3>
+                    <p>Employees</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h3 class="currency">2,778</h3>
+                    <p>Average Salary</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

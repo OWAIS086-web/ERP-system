@@ -1,0 +1,490 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Help & Support{% endblock %}
+{% block page_subtitle %}Get help and learn how to use the ERP system{% endblock %}
+
+{% block page_icon %}
+<i class="fas fa-question-circle text-primary"></i>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#contactSupportModal">
+        <i class="fas fa-headset"></i> Contact Support
+    </button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shortcutsModal">
+        <i class="fas fa-keyboard"></i> Keyboard Shortcuts
+    </button>
+</div>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Help</li>
+{% endblock %}
+
+{% block page_content %}
+<div class="row g-4">
+    <!-- Quick Help -->
+    <div class="col-lg-8">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-rocket me-2"></i>Getting Started
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="help-section">
+                    <h6>Welcome to the ERP System!</h6>
+                    <p>This comprehensive Enterprise Resource Planning system helps you manage all aspects of your business. Here's how to get started:</p>
+                    
+                    <div class="getting-started-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h6>Set Up Your Profile</h6>
+                                <p>Complete your profile information and preferences in the <a href="/profile">Profile</a> section.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h6>Explore the Dashboard</h6>
+                                <p>The <a href="/dashboard">Dashboard</a> provides an overview of your business metrics and recent activities.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h6>Add Your Data</h6>
+                                <p>Start by adding customers, products, and employees to build your business database.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h6>Learn Keyboard Shortcuts</h6>
+                                <p>Press <kbd>?</kbd> or <kbd>Ctrl+Shift+H</kbd> to view keyboard shortcuts for faster navigation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feature Guides -->
+        <div class="glass-card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-book me-2"></i>Feature Guides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="feature-guides">
+                    <div class="guide-category">
+                        <h6><i class="fas fa-chart-line me-2"></i>Sales Management</h6>
+                        <ul class="guide-list">
+                            <li><a href="#" onclick="showGuide('customers')">Managing Customers</a></li>
+                            <li><a href="#" onclick="showGuide('orders')">Creating and Tracking Orders</a></li>
+                            <li><a href="#" onclick="showGuide('quotes')">Generating Quotes</a></li>
+                            <li><a href="#" onclick="showGuide('sales-reports')">Sales Reports and Analytics</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="guide-category">
+                        <h6><i class="fas fa-boxes me-2"></i>Inventory Management</h6>
+                        <ul class="guide-list">
+                            <li><a href="#" onclick="showGuide('products')">Adding and Managing Products</a></li>
+                            <li><a href="#" onclick="showGuide('categories')">Product Categories</a></li>
+                            <li><a href="#" onclick="showGuide('stock')">Stock Management</a></li>
+                            <li><a href="#" onclick="showGuide('inventory-reports')">Inventory Reports</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="guide-category">
+                        <h6><i class="fas fa-dollar-sign me-2"></i>Financial Management</h6>
+                        <ul class="guide-list">
+                            <li><a href="#" onclick="showGuide('invoices')">Creating Invoices</a></li>
+                            <li><a href="#" onclick="showGuide('payments')">Recording Payments</a></li>
+                            <li><a href="#" onclick="showGuide('expenses')">Managing Expenses</a></li>
+                            <li><a href="#" onclick="showGuide('financial-reports')">Financial Reports</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="guide-category">
+                        <h6><i class="fas fa-users me-2"></i>Human Resources</h6>
+                        <ul class="guide-list">
+                            <li><a href="#" onclick="showGuide('employees')">Employee Management</a></li>
+                            <li><a href="#" onclick="showGuide('departments')">Department Structure</a></li>
+                            <li><a href="#" onclick="showGuide('leave')">Leave Management</a></li>
+                            <li><a href="#" onclick="showGuide('payroll')">Payroll Processing</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Support Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Help
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="showVideoTutorials()">
+                        <i class="fas fa-play me-2"></i>Video Tutorials
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="downloadUserGuide()">
+                        <i class="fas fa-download me-2"></i>Download User Guide
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#shortcutsModal">
+                        <i class="fas fa-keyboard me-2"></i>Keyboard Shortcuts
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showSystemStatus()">
+                        <i class="fas fa-heartbeat me-2"></i>System Status
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="glass-card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-headset me-2"></i>Support Contact
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope text-primary"></i>
+                        <div>
+                            <strong>Email Support</strong>
+                            <div class="text-muted">support@erpsystem.com</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-phone text-success"></i>
+                        <div>
+                            <strong>Phone Support</strong>
+                            <div class="text-muted">+1 (555) 123-4567</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-comments text-info"></i>
+                        <div>
+                            <strong>Live Chat</strong>
+                            <div class="text-muted">Available 24/7</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-clock text-warning"></i>
+                        <div>
+                            <strong>Business Hours</strong>
+                            <div class="text-muted">Mon-Fri 9AM-6PM EST</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#contactSupportModal">
+                    <i class="fas fa-paper-plane me-2"></i>Contact Support
+                </button>
+            </div>
+        </div>
+        
+        <!-- System Information -->
+        <div class="glass-card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="system-info">
+                    <div class="info-item">
+                        <span class="info-label">Version:</span>
+                        <span class="info-value">1.0.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Update:</span>
+                        <span class="info-value">January 3, 2026</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Uptime:</span>
+                        <span class="info-value">99.9%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Support Modal -->
+<div class="modal fade" id="contactSupportModal" tabindex="-1" aria-labelledby="contactSupportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactSupportModalLabel">
+                    <i class="fas fa-headset me-2"></i>Contact Support
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="supportForm">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="supportName" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="supportName" 
+                                   value="{{ current_user.full_name if current_user.is_authenticated else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="supportEmail" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="supportEmail" 
+                                   value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="supportCategory" class="form-label">Category</label>
+                            <select class="form-select" id="supportCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="technical">Technical Issue</option>
+                                <option value="billing">Billing Question</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="training">Training Request</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="supportPriority" class="form-label">Priority</label>
+                            <select class="form-select" id="supportPriority" required>
+                                <option value="low">Low - General question</option>
+                                <option value="medium" selected>Medium - Standard issue</option>
+                                <option value="high">High - Business impacting</option>
+                                <option value="urgent">Urgent - System down</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="supportSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="supportSubject" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="supportMessage" class="form-label">Message</label>
+                            <textarea class="form-control" id="supportMessage" rows="5" 
+                                      placeholder="Please describe your issue or question in detail..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="supportAttachment" class="form-label">Attachment (optional)</label>
+                            <input type="file" class="form-control" id="supportAttachment" multiple>
+                            <div class="form-text">You can attach screenshots or documents to help us understand your issue.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.getting-started-steps {
+    display: grid;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.step-content h6 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.step-content p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.feature-guides {
+    display: grid;
+    gap: 32px;
+}
+
+.guide-category h6 {
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guide-list li {
+    margin-bottom: 8px;
+}
+
+.guide-list a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 8px 0;
+}
+
+.guide-list a:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+    transform: translateX(4px);
+}
+
+.contact-info {
+    display: grid;
+    gap: 16px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.contact-item i {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.contact-item strong {
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.system-info {
+    display: grid;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .getting-started-steps {
+        gap: 16px;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+    
+    .feature-guides {
+        gap: 24px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Support form submission
+    $('#supportForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = $(this).find('button[type="submit"]');
+        const originalText = btn.html();
+        
+        btn.html('<i class="fas fa-spinner fa-spin"></i> Sending...').prop('disabled', true);
+        
+        // Simulate sending
+        setTimeout(() => {
+            btn.html(originalText).prop('disabled', false);
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('contactSupportModal'));
+            modal.hide();
+            
+            window.notificationManager?.showToast('Support request sent successfully. We\'ll get back to you soon!', 'success');
+            
+            // Reset form
+            this.reset();
+        }, 2000);
+    });
+});
+
+function showGuide(topic) {
+    window.notificationManager?.showToast(`${topic.charAt(0).toUpperCase() + topic.slice(1)} guide will be available soon`, 'info');
+}
+
+function showVideoTutorials() {
+    window.notificationManager?.showToast('Video tutorials will be available soon', 'info');
+}
+
+function downloadUserGuide() {
+    window.notificationManager?.showToast('User guide download will be available soon', 'info');
+}
+
+function showSystemStatus() {
+    window.notificationManager?.showToast('All systems are operational', 'success');
+}
+</script>
+{% endblock %}

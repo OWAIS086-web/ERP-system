@@ -1,0 +1,396 @@
+{% extends "layout.html" %}
+
+{% block page_title %}{{ customer.name }}{% endblock %}
+{% block page_subtitle %}Customer Details{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('sales.customers') }}">Customers</a></li>
+                    <li class="breadcrumb-item active">{{ customer.name }}</li>
+                </ol>
+            </nav>
+            <h2>{{ customer.name }}
+                <span class="badge {% if customer.is_active %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                    {% if customer.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </h2>
+            <p class="text-muted">Customer ID: {{ customer.customer_code }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('sales.edit_customer', id=customer.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Customer
+                </a>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" 
+                        data-bs-toggle="dropdown">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('sales.add_order') }}?customer_id={{ customer.id }}">
+                        <i class="fas fa-plus"></i> New Order
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('sales.add_quote') }}?customer_id={{ customer.id }}">
+                        <i class="fas fa-file-alt"></i> New Quote
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('sales.customers') }}">
+                        <i class="fas fa-list"></i> All Customers
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteCustomer({{ customer.id }})">
+                        <i class="fas fa-trash"></i> Delete Customer
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">${{ "{:,.2f}".format(customer.total_sales or 0) }}</h3>
+                    <p class="text-muted mb-0">Total Sales</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ customer.orders|length }}</h3>
+                    <p class="text-muted mb-0">Total Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ customer.quotes|length }}</h3>
+                    <p class="text-muted mb-0">Quotes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">${{ "{:,.2f}".format(customer.outstanding_balance or 0) }}</h3>
+                    <p class="text-muted mb-0">Outstanding</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Customer Information -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-muted">Customer Code:</td>
+                            <td><strong>{{ customer.customer_code }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Category:</td>
+                            <td>
+                                {% if customer.category %}
+                                    <span class="badge bg-info">{{ customer.category.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">No category</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Type:</td>
+                            <td><span class="badge bg-secondary">{{ customer.customer_type|title }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Credit Limit:</td>
+                            <td>${{ "{:,.2f}".format(customer.credit_limit or 0) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Payment Terms:</td>
+                            <td>{{ customer.payment_terms or 'Not specified' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tax ID:</td>
+                            <td>{{ customer.tax_id or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Status:</td>
+                            <td>
+                                <span class="badge {% if customer.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if customer.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Customer Since:</td>
+                            <td>{{ customer.created_at.strftime('%b %d, %Y') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    {% if customer.email %}
+                        <div class="mb-2">
+                            <i class="fas fa-envelope text-muted me-2"></i>
+                            <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                        </div>
+                    {% endif %}
+                    {% if customer.phone %}
+                        <div class="mb-2">
+                            <i class="fas fa-phone text-muted me-2"></i>
+                            <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                        </div>
+                    {% endif %}
+                    {% if customer.website %}
+                        <div class="mb-2">
+                            <i class="fas fa-globe text-muted me-2"></i>
+                            <a href="{{ customer.website }}" target="_blank">{{ customer.website }}</a>
+                        </div>
+                    {% endif %}
+                    {% if customer.address %}
+                        <div class="mb-2">
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            <span>{{ customer.address }}</span>
+                            {% if customer.city or customer.state or customer.postal_code %}
+                                <br><small class="text-muted ms-3">
+                                    {{ customer.city }}{% if customer.city and customer.state %}, {% endif %}{{ customer.state }} {{ customer.postal_code }}
+                                    {% if customer.country %}<br>{{ customer.country }}{% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contact Person -->
+            {% if customer.contact_person %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Primary Contact</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                            {{ customer.contact_person[0] }}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ customer.contact_person }}</h6>
+                            {% if customer.contact_email %}
+                                <small class="text-muted">{{ customer.contact_email }}</small><br>
+                            {% endif %}
+                            {% if customer.contact_phone %}
+                                <small class="text-muted">{{ customer.contact_phone }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Orders and Transactions -->
+        <div class="col-md-8">
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Orders</h5>
+                    <a href="{{ url_for('sales.add_order') }}?customer_id={{ customer.id }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> New Order
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if customer.orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in customer.orders[:10] %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('sales.order_detail', id=order.id) }}">
+                                                    {{ order.order_number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ order.order_date.strftime('%b %d, %Y') }}</td>
+                                            <td>${{ "{:,.2f}".format(order.total_amount) }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if order.status == 'completed' %}bg-success
+                                                    {% elif order.status == 'pending' %}bg-warning
+                                                    {% elif order.status == 'cancelled' %}bg-danger
+                                                    {% else %}bg-info{% endif %}">
+                                                    {{ order.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('sales.order_detail', id=order.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if customer.orders|length > 10 %}
+                            <div class="text-center">
+                                <a href="{{ url_for('sales.orders') }}?customer={{ customer.id }}" class="btn btn-outline-primary">
+                                    View All Orders ({{ customer.orders|length }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No orders yet</h6>
+                            <p class="text-muted">This customer hasn't placed any orders.</p>
+                            <a href="{{ url_for('sales.add_order') }}?customer_id={{ customer.id }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create First Order
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quotes -->
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">Recent Quotes</h6>
+                    <a href="{{ url_for('sales.add_quote') }}?customer_id={{ customer.id }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus"></i> New Quote
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if customer.quotes %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Quote #</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Valid Until</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quote in customer.quotes[:5] %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('sales.quote_detail', id=quote.id) }}">
+                                                    {{ quote.quote_number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ quote.quote_date.strftime('%b %d') }}</td>
+                                            <td>${{ "{:,.2f}".format(quote.total_amount) }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if quote.status == 'accepted' %}bg-success
+                                                    {% elif quote.status == 'pending' %}bg-warning
+                                                    {% elif quote.status == 'rejected' %}bg-danger
+                                                    {% elif quote.status == 'expired' %}bg-secondary
+                                                    {% else %}bg-info{% endif %}">
+                                                    {{ quote.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if quote.valid_until %}
+                                                    {{ quote.valid_until.strftime('%b %d') }}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('sales.quote_detail', id=quote.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No quotes for this customer.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if customer.notes %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Notes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ customer.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteCustomer(customerId) {
+    if (confirm('Are you sure you want to delete this customer? This action cannot be undone and will affect all related orders and quotes.')) {
+        fetch(`/sales/customers/${customerId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = "{{ url_for('sales.customers') }}";
+            } else {
+                alert('Error deleting customer: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting customer');
+        });
+    }
+}
+</script>
+
+<style>
+.avatar-md {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

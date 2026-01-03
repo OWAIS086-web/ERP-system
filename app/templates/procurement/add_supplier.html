@@ -1,0 +1,367 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add Supplier{% endblock %}
+{% block page_subtitle %}Create a new supplier record{% endblock %}
+
+{% block page_icon %}
+<i class="fas fa-truck text-primary"></i>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('procurement.suppliers') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to Suppliers
+</a>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('procurement.suppliers') }}">Suppliers</a>
+</li>
+<li class="breadcrumb-item active">Add Supplier</li>
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Supplier Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('procurement.add_supplier') }}" class="needs-validation" novalidate>
+                    <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Supplier Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="supplier_code" class="form-label">Supplier Code</label>
+                                <input type="text" class="form-control" id="supplier_code" name="supplier_code" 
+                                       placeholder="Auto-generated if empty">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="category_id" class="form-label">Category</label>
+                                <select class="form-select" id="category_id" name="category_id">
+                                    <option value="">Select Category...</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="supplier_type" class="form-label">Supplier Type *</label>
+                                <select class="form-select" id="supplier_type" name="supplier_type" required>
+                                    <option value="">Select Type...</option>
+                                    <option value="manufacturer">Manufacturer</option>
+                                    <option value="distributor">Distributor</option>
+                                    <option value="wholesaler">Wholesaler</option>
+                                    <option value="retailer">Retailer</option>
+                                    <option value="service_provider">Service Provider</option>
+                                    <option value="contractor">Contractor</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Contact Information -->
+                            <div class="col-md-12 mb-3">
+                                <h6 class="text-muted border-bottom pb-2">Contact Information</h6>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label for="fax" class="form-label">Fax</label>
+                                <input type="tel" class="form-control" id="fax" name="fax">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="website" class="form-label">Website</label>
+                                <input type="url" class="form-control" id="website" name="website" 
+                                       placeholder="https://example.com">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="tax_id" class="form-label">Tax ID</label>
+                                <input type="text" class="form-control" id="tax_id" name="tax_id">
+                            </div>
+                            
+                            <!-- Address Information -->
+                            <div class="col-md-12 mb-3">
+                                <h6 class="text-muted border-bottom pb-2">Address Information</h6>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="address" class="form-label">Street Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="state" class="form-label">State/Province</label>
+                                <input type="text" class="form-control" id="state" name="state">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="postal_code" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="country" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="country" name="country">
+                            </div>
+                            
+                            <!-- Primary Contact -->
+                            <div class="col-md-12 mb-3">
+                                <h6 class="text-muted border-bottom pb-2">Primary Contact</h6>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="contact_person" class="form-label">Contact Person</label>
+                                <input type="text" class="form-control" id="contact_person" name="contact_person">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="contact_email" class="form-label">Contact Email</label>
+                                <input type="email" class="form-control" id="contact_email" name="contact_email">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="contact_phone" class="form-label">Contact Phone</label>
+                                <input type="tel" class="form-control" id="contact_phone" name="contact_phone">
+                            </div>
+                            
+                            <!-- Business Terms -->
+                            <div class="col-md-12 mb-3">
+                                <h6 class="text-muted border-bottom pb-2">Business Terms</h6>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_terms" class="form-label">Payment Terms</label>
+                                <select class="form-select" id="payment_terms" name="payment_terms">
+                                    <option value="Net 30" selected>Net 30</option>
+                                    <option value="Net 15">Net 15</option>
+                                    <option value="Net 60">Net 60</option>
+                                    <option value="COD">Cash on Delivery (COD)</option>
+                                    <option value="Prepaid">Prepaid</option>
+                                    <option value="2/10 Net 30">2/10 Net 30</option>
+                                    <option value="Custom">Custom</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="credit_limit" class="form-label">Credit Limit</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="credit_limit" name="credit_limit" 
+                                           step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="currency" class="form-label">Currency</label>
+                                <select class="form-select" id="currency" name="currency">
+                                    <option value="USD" selected>USD - US Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="lead_time_days" class="form-label">Lead Time (Days)</label>
+                                <input type="number" class="form-control" id="lead_time_days" name="lead_time_days" 
+                                       min="0" placeholder="e.g., 7">
+                            </div>
+                            
+                            <!-- Additional Information -->
+                            <div class="col-md-12 mb-3">
+                                <label for="products_services" class="form-label">Products & Services</label>
+                                <textarea class="form-control" id="products_services" name="products_services" rows="3" 
+                                          placeholder="Describe the products or services this supplier provides..."></textarea>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="Additional notes about this supplier..."></textarea>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">
+                                        Active Supplier
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ url_for('procurement.suppliers') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Supplier
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Supplier Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Tips</h6>
+                        <ul class="mb-0 small">
+                            <li>Supplier code will be auto-generated from name if not provided</li>
+                            <li>Complete contact information improves communication</li>
+                            <li>Payment terms affect cash flow planning</li>
+                            <li>Lead time helps with procurement planning</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-lightbulb"></i> Best Practices</h6>
+                        <ul class="mb-0 small">
+                            <li>Verify supplier credentials before adding</li>
+                            <li>Set appropriate credit limits</li>
+                            <li>Document products/services clearly</li>
+                            <li>Regular supplier evaluations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Type Guide -->
+            <div class="glass-card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-tags me-2"></i>Supplier Type Guide
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="mb-2">
+                            <strong>Manufacturer:</strong> Produces goods directly
+                        </div>
+                        <div class="mb-2">
+                            <strong>Distributor:</strong> Sells manufacturer products
+                        </div>
+                        <div class="mb-2">
+                            <strong>Wholesaler:</strong> Bulk sales to retailers
+                        </div>
+                        <div class="mb-2">
+                            <strong>Retailer:</strong> Sells to end consumers
+                        </div>
+                        <div class="mb-2">
+                            <strong>Service Provider:</strong> Provides services
+                        </div>
+                        <div class="mb-0">
+                            <strong>Contractor:</strong> Project-based work
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Terms Guide -->
+            <div class="glass-card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Payment Terms Guide
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="mb-2">
+                            <strong>Net 30:</strong> Payment due in 30 days
+                        </div>
+                        <div class="mb-2">
+                            <strong>2/10 Net 30:</strong> 2% discount if paid in 10 days
+                        </div>
+                        <div class="mb-2">
+                            <strong>COD:</strong> Cash on delivery
+                        </div>
+                        <div class="mb-0">
+                            <strong>Prepaid:</strong> Payment before delivery
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate supplier code from name
+document.getElementById('name').addEventListener('input', function() {
+    const name = this.value;
+    const codeField = document.getElementById('supplier_code');
+    
+    if (!codeField.value && name) {
+        // Generate code from first 3 letters of each word
+        const words = name.split(' ');
+        const code = words.slice(0, 2).map(word => word.substring(0, 3).toUpperCase()).join('');
+        codeField.placeholder = `Suggested: SUP${code}`;
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const supplierType = document.getElementById('supplier_type').value;
+    
+    if (!name) {
+        e.preventDefault();
+        alert('Please enter a supplier name');
+        return;
+    }
+    
+    if (!supplierType) {
+        e.preventDefault();
+        alert('Please select a supplier type');
+        return;
+    }
+    
+    if (name.length < 2) {
+        e.preventDefault();
+        alert('Supplier name must be at least 2 characters long');
+        return;
+    }
+});
+
+// Website URL validation
+document.getElementById('website').addEventListener('input', function() {
+    const website = this.value;
+    if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+        this.value = 'https://' + website;
+    }
+});
+</script>
+{% endblock %}

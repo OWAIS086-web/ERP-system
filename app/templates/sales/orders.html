@@ -1,0 +1,265 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Orders{% endblock %}
+{% block page_subtitle %}Manage sales orders and track progress{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Sales</span>
+<span class="breadcrumb-item active">Orders</span>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('sales.add_order') }}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> New Order
+</a>
+<div class="dropdown">
+    <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fas fa-download"></i> Export
+    </button>
+    <ul class="dropdown-menu glass-card">
+        <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf"></i> Export PDF</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel"></i> Export Excel</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-file-csv"></i> Export CSV</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block page_content %}
+<!-- Order Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon primary mb-3">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3 class="stat-number">89</h3>
+                <p class="stat-label">Total Orders</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon warning mb-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="stat-number">12</h3>
+                <p class="stat-label">Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon success mb-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="stat-number">65</h3>
+                <p class="stat-label">Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon danger mb-3">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="stat-number">3</h3>
+                <p class="stat-label">Overdue</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="glass-card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="search-box">
+                    <input type="text" class="form-control" placeholder="Search orders...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="d-flex gap-2">
+                    <select class="form-select">
+                        <option>All Status</option>
+                        <option>Draft</option>
+                        <option>Pending</option>
+                        <option>Confirmed</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                        <option>Cancelled</option>
+                    </select>
+                    <select class="form-select">
+                        <option>All Customers</option>
+                        <option>Acme Corporation</option>
+                        <option>Tech Solutions Inc</option>
+                        <option>Global Enterprises</option>
+                    </select>
+                    <input type="date" class="form-control" placeholder="From Date">
+                    <input type="date" class="form-control" placeholder="To Date">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Order List</h5>
+        <div class="card-actions">
+            <span class="text-muted">Showing 1-10 of 89 orders</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">#ORD-001234</div>
+                            <small class="text-muted">Created today</small>
+                        </td>
+                        <td>
+                            <div>John Smith</div>
+                            <small class="text-muted">Acme Corporation</small>
+                        </td>
+                        <td>Jan 03, 2026</td>
+                        <td>5 items</td>
+                        <td class="currency">2,500.00</td>
+                        <td><span class="status-badge pending">Pending</span></td>
+                        <td><span class="status-badge active">Paid</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" title="Invoice">
+                                    <i class="fas fa-file-invoice"></i>
+                                </button>
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu glass-card">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-print"></i> Print</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-copy"></i> Duplicate</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">#ORD-001233</div>
+                            <small class="text-muted">Created yesterday</small>
+                        </td>
+                        <td>
+                            <div>Sarah Johnson</div>
+                            <small class="text-muted">Tech Solutions Inc</small>
+                        </td>
+                        <td>Jan 02, 2026</td>
+                        <td>12 items</td>
+                        <td class="currency">8,750.00</td>
+                        <td><span class="status-badge completed">Shipped</span></td>
+                        <td><span class="status-badge active">Paid</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" title="Track">
+                                    <i class="fas fa-truck"></i>
+                                </button>
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu glass-card">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-print"></i> Print</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-copy"></i> Duplicate</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash"></i> Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">#ORD-001232</div>
+                            <small class="text-muted">Created 2 days ago</small>
+                        </td>
+                        <td>
+                            <div>Michael Brown</div>
+                            <small class="text-muted">Global Enterprises</small>
+                        </td>
+                        <td>Jan 01, 2026</td>
+                        <td>3 items</td>
+                        <td class="currency">1,200.00</td>
+                        <td><span class="status-badge cancelled">Cancelled</span></td>
+                        <td><span class="status-badge danger">Refunded</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" title="Reorder">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link">1</span>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

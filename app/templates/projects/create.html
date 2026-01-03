@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Create New Project{% endblock %}
+{% block page_subtitle %}Set up a new project with all necessary details{% endblock %}
+
+{% block page_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card">
+            <div class="card-header">
+                <h5 class="card-title text-contrast mb-0">
+                    <i class="fas fa-plus-circle text-primary"></i> New Project Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="projectForm">
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Project Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required 
+                                       placeholder="Enter project name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Category</label>
+                                <select class="form-control" name="category_id">
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-contrast">Description</label>
+                        <textarea class="form-control" name="description" rows="3" 
+                                  placeholder="Project description and objectives"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Project Manager -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Project Manager <span class="text-danger">*</span></label>
+                                <select class="form-control" name="manager_id" required>
+                                    <option value="">Select Manager</option>
+                                    {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.full_name or manager.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Client</label>
+                                <select class="form-control" name="client_id">
+                                    <option value="">Select Client (Optional)</option>
+                                    {% for client in clients %}
+                                    <option value="{{ client.id }}">{{ client.company_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Budget and Settings -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Budget</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" name="budget" step="0.01" min="0" 
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Priority</label>
+                                <select class="form-control" name="priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-contrast">Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="planning" selected>Planning</option>
+                                    <option value="active">Active</option>
+                                    <option value="on_hold">On Hold</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Billable Setting -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_billable" id="is_billable" checked>
+                            <label class="form-check-label text-contrast" for="is_billable">
+                                This is a billable project
+                            </label>
+                            <small class="form-text text-muted d-block">
+                                Enable time tracking and billing for this project
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('projects.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Project
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Tips -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="glass-card">
+            <div class="card-body">
+                <h6 class="text-contrast mb-3">
+                    <i class="fas fa-lightbulb text-warning"></i> Project Setup Tips
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-contrast-secondary small">
+                            <li><i class="fas fa-check text-success"></i> Choose a clear, descriptive project name</li>
+                            <li><i class="fas fa-check text-success"></i> Set realistic start and end dates</li>
+                            <li><i class="fas fa-check text-success"></i> Assign an experienced project manager</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-contrast-secondary small">
+                            <li><i class="fas fa-check text-success"></i> Define a reasonable budget if applicable</li>
+                            <li><i class="fas fa-check text-success"></i> Set appropriate priority level</li>
+                            <li><i class="fas fa-check text-success"></i> Enable billing for client projects</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelector('input[name="start_date"]').min = today;
+    
+    // Update end date minimum when start date changes
+    document.querySelector('input[name="start_date"]').addEventListener('change', function() {
+        document.querySelector('input[name="end_date"]').min = this.value;
+    });
+    
+    // Form validation
+    document.getElementById('projectForm').addEventListener('submit', function(e) {
+        const startDate = new Date(document.querySelector('input[name="start_date"]').value);
+        const endDate = new Date(document.querySelector('input[name="end_date"]').value);
+        
+        if (endDate <= startDate) {
+            e.preventDefault();
+            alert('End date must be after start date');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

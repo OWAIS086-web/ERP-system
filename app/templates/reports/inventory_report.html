@@ -1,0 +1,459 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Inventory Report{% endblock %}
+{% block page_subtitle %}Stock levels and inventory analysis{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('reports.index') }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Inventory Report</li>
+                </ol>
+            </nav>
+            <h2>Inventory Report</h2>
+            <p class="text-muted">Monitor stock levels, valuation, and inventory movements</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary" onclick="exportReport('pdf')">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="exportReport('excel')">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="refreshReport()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3" id="filterForm">
+                        <div class="col-md-3">
+                            <label for="warehouse_id" class="form-label">Warehouse</label>
+                            <select class="form-select" id="warehouse_id" name="warehouse_id">
+                                <option value="">All Warehouses</option>
+                                {% for warehouse in warehouses %}
+                                    <option value="{{ warehouse.id }}" 
+                                            {% if request.args.get('warehouse_id') == warehouse.id|string %}selected{% endif %}>
+                                        {{ warehouse.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category_id" class="form-label">Category</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" 
+                                            {% if request.args.get('category_id') == category.id|string %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="stock_status" class="form-label">Stock Status</label>
+                            <select class="form-select" id="stock_status" name="stock_status">
+                                <option value="">All Items</option>
+                                <option value="in_stock" {% if request.args.get('stock_status') == 'in_stock' %}selected{% endif %}>In Stock</option>
+                                <option value="low_stock" {% if request.args.get('stock_status') == 'low_stock' %}selected{% endif %}>Low Stock</option>
+                                <option value="out_of_stock" {% if request.args.get('stock_status') == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                                <option value="overstock" {% if request.args.get('stock_status') == 'overstock' %}selected{% endif %}>Overstock</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="product_type" class="form-label">Product Type</label>
+                            <select class="form-select" id="product_type" name="product_type">
+                                <option value="">All Types</option>
+                                <option value="finished_good" {% if request.args.get('product_type') == 'finished_good' %}selected{% endif %}>Finished Good</option>
+                                <option value="raw_material" {% if request.args.get('product_type') == 'raw_material' %}selected{% endif %}>Raw Material</option>
+                                <option value="component" {% if request.args.get('product_type') == 'component' %}selected{% endif %}>Component</option>
+                                <option value="service" {% if request.args.get('product_type') == 'service' %}selected{% endif %}>Service</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ metrics.total_products or 0 }}</h3>
+                    <p class="text-muted mb-1">Total Products</p>
+                    <small class="text-info">
+                        <i class="fas fa-box"></i> {{ metrics.active_products or 0 }} active
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">${{ "{:,.2f}".format(metrics.total_inventory_value or 0) }}</h3>
+                    <p class="text-muted mb-1">Inventory Value</p>
+                    <small class="text-success">
+                        <i class="fas fa-dollar-sign"></i> At cost price
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ metrics.low_stock_items or 0 }}</h3>
+                    <p class="text-muted mb-1">Low Stock Items</p>
+                    <small class="text-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Need attention
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ metrics.out_of_stock_items or 0 }}</h3>
+                    <p class="text-muted mb-1">Out of Stock</p>
+                    <small class="text-danger">
+                        <i class="fas fa-times-circle"></i> Immediate action
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Inventory Details -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Inventory Details</h5>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary active" onclick="toggleView('table')">
+                            <i class="fas fa-table"></i> Table
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleView('cards')">
+                            <i class="fas fa-th"></i> Cards
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Table View -->
+                    <div id="tableView">
+                        {% if products %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th class="text-center">Current Stock</th>
+                                            <th class="text-center">Reorder Level</th>
+                                            <th class="text-end">Unit Cost</th>
+                                            <th class="text-end">Stock Value</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <a href="{{ url_for('inventory.product_detail', id=product.id) }}">
+                                                            <strong>{{ product.name }}</strong>
+                                                        </a>
+                                                        <br><small class="text-muted">{{ product.sku }}</small>
+                                                        {% if product.category %}
+                                                            <br><span class="badge bg-light text-dark">{{ product.category.name }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge 
+                                                        {% if product.current_stock <= 0 %}bg-danger
+                                                        {% elif product.current_stock <= product.reorder_level %}bg-warning
+                                                        {% elif product.current_stock > product.maximum_stock %}bg-info
+                                                        {% else %}bg-success{% endif %}">
+                                                        {{ product.current_stock or 0 }}
+                                                    </span>
+                                                    {% if product.unit %}
+                                                        <br><small class="text-muted">{{ product.unit.symbol }}</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">{{ product.reorder_level or 0 }}</td>
+                                                <td class="text-end">${{ "{:,.2f}".format(product.cost_price or 0) }}</td>
+                                                <td class="text-end">
+                                                    <strong>${{ "{:,.2f}".format((product.current_stock or 0) * (product.cost_price or 0)) }}</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if product.current_stock <= 0 %}
+                                                        <span class="badge bg-danger">Out of Stock</span>
+                                                    {% elif product.current_stock <= product.reorder_level %}
+                                                        <span class="badge bg-warning">Low Stock</span>
+                                                    {% elif product.current_stock > product.maximum_stock %}
+                                                        <span class="badge bg-info">Overstock</span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">In Stock</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">No products found</h6>
+                                <p class="text-muted">No products match your current filters.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cards View -->
+                    <div id="cardsView" style="display: none;">
+                        {% if products %}
+                            <div class="row">
+                                {% for product in products %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">{{ product.name }}</h6>
+                                                    {% if product.current_stock <= 0 %}
+                                                        <span class="badge bg-danger">Out of Stock</span>
+                                                    {% elif product.current_stock <= product.reorder_level %}
+                                                        <span class="badge bg-warning">Low Stock</span>
+                                                    {% elif product.current_stock > product.maximum_stock %}
+                                                        <span class="badge bg-info">Overstock</span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">In Stock</span>
+                                                    {% endif %}
+                                                </div>
+                                                <p class="card-text">
+                                                    <small class="text-muted">{{ product.sku }}</small><br>
+                                                    {% if product.category %}
+                                                        <span class="badge bg-light text-dark">{{ product.category.name }}</span>
+                                                    {% endif %}
+                                                </p>
+                                                <div class="row text-center">
+                                                    <div class="col-4">
+                                                        <h6 class="mb-0">{{ product.current_stock or 0 }}</h6>
+                                                        <small class="text-muted">Current</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h6 class="mb-0">{{ product.reorder_level or 0 }}</h6>
+                                                        <small class="text-muted">Reorder</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h6 class="mb-0">${{ "{:,.0f}".format((product.current_stock or 0) * (product.cost_price or 0)) }}</h6>
+                                                        <small class="text-muted">Value</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics & Alerts -->
+        <div class="col-md-4">
+            <!-- Stock Status Distribution -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Stock Status Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="stockStatusChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Low Stock Alerts -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Low Stock Alerts</h6>
+                </div>
+                <div class="card-body">
+                    {% if low_stock_products %}
+                        {% for product in low_stock_products[:5] %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-1">{{ product.name }}</h6>
+                                    <small class="text-muted">{{ product.sku }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-warning">{{ product.current_stock }}</span>
+                                    <br><small class="text-muted">Min: {{ product.reorder_level }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if low_stock_products|length > 5 %}
+                            <div class="text-center">
+                                <small class="text-muted">And {{ low_stock_products|length - 5 }} more items...</small>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center">No low stock alerts</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Inventory by Category -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Inventory by Category</h6>
+                </div>
+                <div class="card-body">
+                    {% if category_breakdown %}
+                        {% for category in category_breakdown %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ category.name }}</span>
+                                <div class="text-end">
+                                    <strong>${{ "{:,.0f}".format(category.value) }}</strong>
+                                    <br><small class="text-muted">{{ category.count }} items</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No category data available</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Warehouse Distribution -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Warehouse Distribution</h6>
+                </div>
+                <div class="card-body">
+                    {% if warehouse_breakdown %}
+                        {% for warehouse in warehouse_breakdown %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>{{ warehouse.name }}</span>
+                                    <strong>${{ "{:,.0f}".format(warehouse.value) }}</strong>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ warehouse.percentage }}%" 
+                                         aria-valuenow="{{ warehouse.percentage }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ warehouse.count }} items ({{ "%.1f"|format(warehouse.percentage) }}%)</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No warehouse data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function toggleView(viewType) {
+    const tableView = document.getElementById('tableView');
+    const cardsView = document.getElementById('cardsView');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (viewType === 'cards') {
+        tableView.style.display = 'none';
+        cardsView.style.display = 'block';
+        event.target.classList.add('active');
+    } else {
+        tableView.style.display = 'block';
+        cardsView.style.display = 'none';
+        event.target.classList.add('active');
+    }
+}
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    // Stock Status Chart
+    const stockCtx = document.getElementById('stockStatusChart').getContext('2d');
+    new Chart(stockCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['In Stock', 'Low Stock', 'Out of Stock', 'Overstock'],
+            datasets: [{
+                data: [
+                    {{ metrics.in_stock_items or 0 }},
+                    {{ metrics.low_stock_items or 0 }},
+                    {{ metrics.out_of_stock_items or 0 }},
+                    {{ metrics.overstock_items or 0 }}
+                ],
+                backgroundColor: [
+                    '#28a745',
+                    '#ffc107',
+                    '#dc3545',
+                    '#17a2b8'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                            return context.label + ': ' + context.parsed + ' items (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+
+function exportReport(format) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', format);
+    window.open(`{{ url_for('reports.inventory_report') }}?${params.toString()}`, '_blank');
+}
+
+function refreshReport() {
+    location.reload();
+}
+
+// Auto-submit form on filter change
+document.querySelectorAll('#warehouse_id, #category_id, #stock_status, #product_type').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+</script>
+{% endblock %}

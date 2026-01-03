@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Projects{% endblock %}
+{% block page_subtitle %}Manage projects and track progress{% endblock %}
+
+{% block page_content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon primary mb-3">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h3 class="stat-number">12</h3>
+                <p class="stat-label">Active Projects</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon success mb-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="stat-number">8</h3>
+                <p class="stat-label">Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon warning mb-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="stat-number">3</h3>
+                <p class="stat-label">Overdue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center">
+            <div class="card-body">
+                <div class="stat-icon info mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="stat-number">25</h3>
+                <p class="stat-label">Team Members</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div class="card-header">
+        <h5 class="card-title">Project List</h5>
+        <button class="btn btn-primary btn-sm">New Project</button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Manager</th>
+                        <th>Progress</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">ERP System Development</div>
+                            <small class="text-muted">Internal software project</small>
+                        </td>
+                        <td>John Smith</td>
+                        <td>
+                            <div class="progress" style="width: 100px;">
+                                <div class="progress-bar bg-success" style="width: 75%">75%</div>
+                            </div>
+                        </td>
+                        <td>Feb 15, 2026</td>
+                        <td><span class="status-badge active">In Progress</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
